@@ -432,12 +432,14 @@ public open class Decimal : Number, Comparable<Decimal> {
 
     // see also the invoke expressions in Companion object, for all int types
 
-    public constructor (inputstr: String) {
+    public constructor (raw_numberstring: String) {
+
+        val numberstring = raw_numberstring.replace("_","").replace(" ","")
 
         val decimalNumberPattern = """(?<intg>[+-]?\d*)(?:\.(?<fract>\d*))?(?:[Ee](?<exp>[+-]?\d+))?"""
         val decimalNumberRegex = Regex(decimalNumberPattern)
 
-        val match = decimalNumberRegex.matchEntire(inputstr) ?: return
+        val match = decimalNumberRegex.matchEntire(numberstring) ?: return
         // will automatically call this(0L,0)
 
         val expn = (match.groups["exp"]?.value ?: "0").toInt()
