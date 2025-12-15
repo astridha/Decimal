@@ -91,7 +91,7 @@ public open class Decimal : Number, Comparable<Decimal> {
 
         // for automatic rounding
         private var autoPrecision: Int = 15 /* 0 - 15 */
-        public fun setPrecision(prec: Int): Unit {
+        public fun setPrecision(prec: Int) {
             autoPrecision = if (prec < 0) {
                 0
             } else if (prec > 15) {
@@ -101,14 +101,14 @@ public open class Decimal : Number, Comparable<Decimal> {
         public fun getPrecision(): Int = autoPrecision
 
         private var autoRoundingMode: RoundingMode = RoundingMode.HALF_UP
-        public fun setRoundingMode(mode: RoundingMode): Unit {
+        public fun setRoundingMode(mode: RoundingMode) {
             autoRoundingMode = mode
         }
         public fun getRoundingMode():RoundingMode = autoRoundingMode
 
         // only for toString()!
         private var autoMinDecimals: Int = 0 /*  0 - max */
-        public fun setMinDecimals(mind: Int): Unit {
+        public fun setMinDecimals(mind: Int) {
             autoMinDecimals = if (mind < 0) 0; else mind
         }
         public fun getMinDecimals(): Int = autoMinDecimals
