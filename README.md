@@ -62,7 +62,3 @@ Use maven dependency:
 </dependency>
 ```
 
----
-
-Based on the official Multiplatform Library Template [https://github.com/Kotlin/multiplatform-library-template](https://github.com/Kotlin/multiplatform-library-template).
-
