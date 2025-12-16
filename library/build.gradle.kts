@@ -70,6 +70,7 @@ kotlin {
         browser()
         // ...
         binaries.executable()
+        nodejs()
     }
 
     js {
@@ -89,11 +90,6 @@ kotlin {
             // testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         }
 
-        val wasmJsMain by getting {
-            dependencies {
-                // Wasm-specific dependencies
-            }
-        }
     }
 }
 
@@ -102,11 +98,11 @@ mavenPublishing {
 
     signAllPublications()
 
-    coordinates(group.toString(), "compact-decimal", version.toString())
+    coordinates(group.toString(), "decimal", version.toString())
 
     pom {
         name = "decimal Library"
-        description = "Multiplatform Decimal library."
+        description = "Multiplatform Decimal Type on 64bit footprint."
         inceptionYear = "2025"
         url = "https://github.com/astridha/decimal/"
         licenses {

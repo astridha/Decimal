@@ -65,7 +65,13 @@ internal fun roundWithMode(mantissa: Long, decimals: Int, desiredprecision: Int,
         println("new: m:$newmantissa, d:$newdecimals")
     }
 
-    return Pair(newmantissa, newdecimals)
+    // truncate any empty decimal places that might have come though rounding
+    while ((newdecimals > 0) and (newmantissa != 0L) and ((newmantissa % 10) == 0L)) {
+        newmantissa /= 10
+        newdecimals--
+    }
+
+    return Pair(newmantissa, if (mantissa == 0L) 0; else newdecimals)
 
 }
 

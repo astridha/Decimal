@@ -1,3 +1,6 @@
+rootProject.name = "io.github.astridha.decimal"
+include(":library")
+
 pluginManagement {
     repositories {
         google()
@@ -13,5 +16,3 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "io.github.astridha.decimal"
-include(":library")

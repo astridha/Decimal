@@ -37,29 +37,14 @@ public open class Decimal : Number, Comparable<Decimal> {
                 decimals--
             }
         }
+        // now round if required
         if ((decimals != 0) and !(omitNormalize)) {
-            val (nmantissa, ndecimals) = normalize(mantissa, decimals)
+            val maxdecimals = min(autoPrecision, MAX_DECIMALS)
+            var (nmantissa, ndecimals) = roundWithMode(mantissa, decimals, maxdecimals, autoRoundingMode)
             mantissa = nmantissa
             decimals = ndecimals
         }
         return ((mantissa shl 4) or (decimals and MAX_DECIMALS).toLong())
-    }
-
-    private fun normalize(mant:Long, deci:Int): Pair<Long, Int> {
-        var mantissa = mant
-        var decimals = if (mantissa == 0L) 0; else deci
-        val maxdecimals = min(autoPrecision, MAX_DECIMALS)
-        // now round if required
-        var (newmantissa, newdecimals) = roundWithMode(mantissa, decimals, maxdecimals, autoRoundingMode)
-
-        // again truncate any empty decimal places that have come though rounding
-        while ((newdecimals > 0) and (newmantissa != 0L) and ((newmantissa % 10) == 0L)) {
-            //mantissa = (mantissa+5) / 10
-            newmantissa /= 10
-            newdecimals--
-        }
-
-        return Pair(newmantissa, if (newmantissa == 0L)  0 else newdecimals)
     }
 
     public fun clone(): Decimal {
