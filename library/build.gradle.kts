@@ -1,19 +1,22 @@
 //import com.android.build.api.dsl.androidLibrary
 //import org.gradle.internal.impldep.com.amazonaws.PredefinedClientConfigurations.defaultConfig
+import org.gradle.api.problems.internal.GradleCoreProblemGroup.compilation
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     // alias(libs.plugins.kotlinMultiplatform)
-    kotlin("multiplatform") version "2.2.21"
+    kotlin("multiplatform") version "2.3.0"
     // id("com.android.library")
     alias(libs.plugins.android.kotlin.multiplatform.library)
-    alias(libs.plugins.vanniktech.mavenPublish)
+
+    //alias(libs.plugins.vanniktech.mavenPublish)
+    id("com.vanniktech.maven.publish") version "0.35.0"
     // id("org.jetbrains.kotlin.kapt")
 }
 
 group = "io.github.astridha"
-//artifact="compact-decimal"
-version = "1.0.0"
+//artifact="decimal"
+version = "0.5.0"
 
 
 kotlin {
@@ -36,8 +39,10 @@ kotlin {
         }
 /*
         defaultConfig {
-            //applicationId = "io.github.astridha.decimal"
             minSdk = 31
+            aarMetadata {
+                minCompileSdk = 29
+            }
             //targetSdk = 34
             //versionCode = 1
             //versionName = "1.0"
@@ -46,15 +51,15 @@ kotlin {
         }
 
  */
-
-        compilations.configureEach {
-            compilerOptions.configure {
-                jvmTarget.set(
-                    JvmTarget.JVM_11
-                )
-            }
+        compilerOptions {
+            jvmTarget.set(
+                JvmTarget.JVM_11
+            )
         }
+
+
     }
+
     iosX64()
     iosArm64()
     iosSimulatorArm64()
@@ -101,28 +106,31 @@ mavenPublishing {
     coordinates(group.toString(), "decimal", version.toString())
 
     pom {
-        name = "decimal Library"
-        description = "Multiplatform Decimal Type on 64bit footprint."
-        inceptionYear = "2025"
+        name = "Decimal Library"
+        description = "Slim Decimal Type on a 64bit footprint."
+        inceptionYear = "2026"
         url = "https://github.com/astridha/decimal/"
         licenses {
             license {
-                name = "XXX"
-                url = "YYY"
-                distribution = "ZZZ"
+                name = "MIT License"
+                url = "http://www.opensource.org/licenses/mit-license.php"
+                distribution = "http://www.opensource.org/licenses/mit-license.php"
             }
         }
         developers {
             developer {
-                id = "XXX"
-                name = "YYY"
-                url = "ZZZ"
+                id = "astridha"
+                name = "Astrid Hanssen"
+                url = "https://github.com/astridha/"
+                email = "github@astrid-hanssen.de"
+                organization = "astrid"
+                organizationUrl = "https://github.com/astridha/"
             }
         }
         scm {
-            url = "XXX"
-            connection = "YYY"
-            developerConnection = "ZZZ"
+            url = "http://github.com/astridha/decimal/"
+            connection = "scm:git:git://github.com/astridha/decimal.git"
+            developerConnection = "scm:git:ssh://git@github.com/astridha/decimal/"
         }
     }
 }

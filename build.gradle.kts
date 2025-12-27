@@ -1,5 +1,5 @@
 plugins {
-    kotlin("multiplatform") version "2.2.21" apply false
+    kotlin("multiplatform") version "2.3.0" apply false
     // alias(libs.plugins.kotlinMultiplatform) apply  false
     alias(libs.plugins.android.kotlin.multiplatform.library) apply false
     alias(libs.plugins.vanniktech.mavenPublish) apply false

@@ -96,6 +96,20 @@ class ArithmeticAssignOperatorsTest {
             d.toPlainString(),
             "operator (12.Dc /= 3)"
         )
+        d=1.Dc
+        d /= 3
+        assertEquals(
+            "0.333333333333333",
+            d.toPlainString(),
+            "operator (1.Dc /= 3)"
+        )
+        d=2.Dc
+        d /= 3
+        assertEquals(
+            "0.666666666666667",
+            d.toPlainString(),
+            "operator (2.Dc /= 3)"
+        )
     }
 
 

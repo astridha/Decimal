@@ -11,11 +11,11 @@ The Decimal class implements Number and Comparable interfaces, with a 64 Bit foo
 
 The footprint consists of a 60 bit mantissa, and a 4 bit exponent
 
-It's value range is from -576460752303423487 to +576460752303423487.  
+It's value range is from -576_460_752_303_423_487 to +576_460_752_303_423_487.  
 
-0 - 15 decimal places are supported.
+So, 17 - 18 significant decimal digits with 0 - 15 decimal places are supported.
 
-It's small fixed 64bit footprint makes it possible to store it as an (unsigned) Long variable type anywhere where 8Byte places are available.
+It's small fixed 64bit footprint makes it possible to store it as an (unsigned) Long variable type anywhere where 8-Byte places are available.
 .
 
 
@@ -40,14 +40,14 @@ import io.github.astridha.decimal.*
 #### setPrecision(Int)
 sets the number of decimal places every Decimal will be rounded to automatically.  
 The supported range is from 0 to 15.   
-15 is the default value and the maximum precision.  
-**setPrecision(2)** means that all Decimals will be rounded half-up to two decimal places.
+15 is the default value and the maximum supported precision.  
+**setPrecision(2)** means that all Decimals will be rounded to two decimal places.
 **setPrecision(0)** means that only whole numbers will be generated.
 
 #### setMinDecimals(Int)
 sets the number of minimum decimal places the Decimal will be formatted to with **toString()**.  
 The supported range is from 0 to any positive value.   
-0 is the default value and means there are no mandatory decimal places.  
+0 is the default value and means there are no printed mandatory decimal places.  
 If this setting sets more decimal places than the Decimal value has, the remaining decimal places are filled with "0"s.  
 **setMinDecimals(2)** means that at least two decimal places are shown when using **toString()** (but more if the Decimal has more decimal places).
 
