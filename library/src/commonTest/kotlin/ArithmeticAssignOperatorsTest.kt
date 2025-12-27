@@ -38,6 +38,11 @@ class ArithmeticAssignOperatorsTest {
             d.toPlainString(),
             "operator (12.468Dc += 3.1111)"
         )
+        assertEquals(
+            "0.3",
+            (0.1.Dc + 0.1.Dc + 0.1.Dc).toPlainString(),
+            "operator ((0.1.Dc + 0.1.Dc + 0.1.Dc) = 0.3)"
+        )
     }
 
     @Test
