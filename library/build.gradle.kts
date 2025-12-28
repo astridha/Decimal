@@ -1,6 +1,3 @@
-//import com.android.build.api.dsl.androidLibrary
-//import org.gradle.internal.impldep.com.amazonaws.PredefinedClientConfigurations.defaultConfig
-import org.gradle.api.problems.internal.GradleCoreProblemGroup.compilation
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {

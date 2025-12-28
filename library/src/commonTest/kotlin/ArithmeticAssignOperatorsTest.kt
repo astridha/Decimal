@@ -84,8 +84,7 @@ class ArithmeticAssignOperatorsTest {
         )
     }
 
-    @Test
-    fun opDivAssignTests() {
+    @Test fun opDivAssignTests() {
         var d: Decimal
         d=12.Dc
         d /= 3.Dc
@@ -118,8 +117,7 @@ class ArithmeticAssignOperatorsTest {
     }
 
 
-    @Test
-    fun opRemAssignTests() {
+    @Test fun opRemAssignTests() {
         var d: Decimal
         d=12.Dc
         d %= 3.Dc
@@ -135,5 +133,43 @@ class ArithmeticAssignOperatorsTest {
             d.toPlainString(),
             "operator (12.Dc %= 3)"
         )
+    }
+
+    @Test fun opNumberAssignTests() {
+        var l:Long
+        var i:Int
+        var c:Short
+
+        assertEquals(
+            "3",
+            3.Dc.toLong().toString(),
+            "3.Dc.toLong().toString()"
+        )
+        assertEquals(
+            "3",
+            3.3.Dc.toLong().toString(),
+            "3.3.Dc.toLong().toString() must be 3"
+        )
+        assertEquals(
+            "-33",
+            (-33.9).Dc.toLong().toString(),
+            "-33.9.Dc.toLong().toString() must be -33"
+        )
+        assertEquals(
+            "-34",
+            (-33.9).Dc.toLong(Decimal.RoundingMode.HALF_UP).toString(),
+            "-33.9.Dc.toLong().toString() must be -33"
+        )
+        assertEquals(
+            -34,
+            (-33.9).Dc.toLong(Decimal.RoundingMode.HALF_UP),
+            "-33.9.Dc.toLong().toString() must be -33"
+        )
+        assertEquals(
+            (-34).toUShort(),
+            (-33.9).Dc.toUShort(Decimal.RoundingMode.HALF_UP),
+            "-33.9.Dc.toUShort().toString() must be -33"
+        )
+
     }
 }

@@ -24,22 +24,18 @@ It's small fixed 64bit footprint makes it possible to store it as an (unsigned) 
 #### No verbose type or class declaration
 
 Just use it like any other numeric type, just with the extension *".Dc"*.  
-Like *5.Dc* or *17.48.Dc*.
+Like *5.Dc* or *17.48.Dc*.  
+Or use a numeric String constructor like *"1228573.68".Dc* or *"12_28_573.68".Dc*.
 
 When giving many decimal places, e.g. *15.000000000000001.Dc* (15 decimal places) rounding errors might occur, 
 because of the inaccuracy and rounding problems of Float and Double numbers.  
-Better use: *"15.000000000000001".Dc*. This is a String constructor and avoids the Float/Double problems.
+Better use: *"15.000000000000001".Dc*. This avoids the Float/Double problems.
 
 #### Arithmetical Operators are working
 
 Use arithmetical operators conveniently, like  
 *(7.5.Dc + 8.5.Dc) / 3.Dc*
 
-
-### Import
-``` kotlin
-import io.github.astridha.decimal.*
-```
 
 
 ### Precision and display
@@ -57,6 +53,41 @@ The supported range is from 0 to any positive value.
 0 is the default value and means there are no printed mandatory decimal places.  
 If this setting sets more decimal places than the Decimal value has, the remaining decimal places are filled with "0"s.  
 **setMinDecimals(2)** means that at least two decimal places are shown when using **toString()** (but more if the Decimal has more decimal places).
+
+
+### Rounding
+
+#### Rounding Modes
+There are the same eight Rounding modes as in BigDecimal:
+
+``` kotlin
+public enum class RoundingMode {
+UP,
+DOWN,
+CEILING,
+FLOOR,
+HALF_UP,
+HALF_DOWN,
+HALF_EVEN,
+UNNECESSARY
+}
+``` 
+
+There is a automatic rounding mode, which is per default *HALF_UP* (commercial rounding).
+This can be changed via **Decimal.setRoundingMode(roundingMode: RoundingMode)**.
+
+#### How to use
+
+The rounding modes can be used in SetScale:
+``` kotlin
+setScale(desiredprecision: Int, rounding: RoundingMode = autoRoundingMode): Decimal
+```
+--------
+
+### Import
+``` kotlin
+import io.github.astridha.decimal.*
+```
 
 #### Usage (not yet active!)
 Use maven dependency:
