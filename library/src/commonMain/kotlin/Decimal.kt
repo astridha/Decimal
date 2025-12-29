@@ -29,31 +29,30 @@ public open class Decimal : Number, Comparable<Decimal> {
 
     // see also the invoke expressions in Companion object, for all constructors out of integer types!
 
-    public constructor (rawNumberstring: String) {
+    public constructor (rawNumberString: String) {
 
-        val numberstring = rawNumberstring.replace("_","").replace(" ","")
+        val cleanedNumberString = rawNumberString.replace("_","").replace(" ","")
 
-        val decimalNumberPattern = """(?<intg>[+-]?\d*)(?:\.(?<fract>\d*))?(?:[Ee](?<exp>[+-]?\d+))?"""
+        val decimalNumberPattern = """(?<integer>[+-]?\d*)(?:\.(?<fraction>\d*))?(?:[Ee](?<exponent>[+-]?\d+))?"""
         val decimalNumberRegex = Regex(decimalNumberPattern)
 
-        val match = decimalNumberRegex.matchEntire(numberstring) ?: return
+        val match = decimalNumberRegex.matchEntire(cleanedNumberString) ?: return
         // will automatically call this(0L,0)
 
-        val exponent = (match.groups["exp"]?.value ?: "0").toInt()
+        val exponent = (match.groups["exponent"]?.value ?: "0").toInt()
 
-        val fractionString = (match.groups["fract"]?.value ?: "0").trimEnd('0')
+        val fractionString = (match.groups["fraction"]?.value ?: "0").trimEnd('0')
         var decimalPlaces = fractionString.length
 
-        var integerString = match.groups["intg"]?.value ?: ""
+        var integerString = match.groups["integer"]?.value ?: ""
 
         var mantissaString = integerString + fractionString
-        decimalPlaces -= exponent                 // expn rechnet andersrum, 0 - expn = Nachkommastellen!
+        decimalPlaces -= exponent                 // exponent calculates reverse, 0 - exponent = decimal places!
 
         if (mantissaString in listOf("+","- ", "")) mantissaString +="0"
         val mantissa: Long = mantissaString.toLong()
-        val decimalplaces: Int = decimalPlaces
 
-        decimal64 = pack64(mantissa, decimalplaces)
+        decimal64 = pack64(mantissa, decimalPlaces)
     }
 
     public constructor (input:Float): this(input.toString())
@@ -432,8 +431,8 @@ public open class Decimal : Number, Comparable<Decimal> {
 
     public fun toFormatted(decim: String, thousands: String) : String {
         var rawstring = this.toRawDecimalString()
-        var decimpart: String = ""
-        var dotpos = rawstring.indexOf(".")
+        var decimpart = ""
+        val dotpos = rawstring.indexOf(".")
         if (dotpos >= 0) {
             decimpart = rawstring.substring(dotpos)
             rawstring = rawstring.take(dotpos+1)
