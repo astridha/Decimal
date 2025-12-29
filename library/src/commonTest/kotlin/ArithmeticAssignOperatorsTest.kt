@@ -1,46 +1,62 @@
 package io.github.astridha.decimal
 
-import io.github.astridha.decimal.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 
 class ArithmeticAssignOperatorsTest {
 
-    @Test
-    fun opPlusAssignTests() {
+    @Test fun opAssignAssignTests() {
+        var d1: Decimal
+        var d2: Decimal
+        d1 = 12.Dc
+        d2 = d1
+        d1 += 3
+        assertEquals(
+            "15 12",
+            d1.toRawDecimalString()+" "+d2.toRawDecimalString(),
+            "operator = (d2 shouldn't change when d1 is changed)"
+        )
+    }
+
+    @Test fun opPlusAssignTests() {
         var d: Decimal
         d=12.Dc
         d += 3.Dc
         assertEquals(
             "15",
-            d.toPlainString(),
+            d.toRawDecimalString(),
             "operator (12.Dc += 3.Dc)"
         )
         d=12.Dc
         d += 3
         assertEquals(
             "15",
-            d.toPlainString(),
+            d.toRawDecimalString(),
             "operator (12.Dc += 3)"
         )
         d=12.468.Dc
         d += 3
         assertEquals(
             "15.468",
-            d.toPlainString(),
+            d.toRawDecimalString(),
             "operator (12.468Dc += 3)"
         )
         d=12.468.Dc
         d += 3.1111
         assertEquals(
             "15.5791",
-            d.toPlainString(),
+            d.toRawDecimalString(),
             "operator (12.468Dc += 3.1111)"
         )
         assertEquals(
             "0.3",
-            (0.1.Dc + 0.1.Dc + 0.1.Dc).toPlainString(),
+            (0.1.Dc + 0.1.Dc + 0.1.Dc).toRawDecimalString(),
+            "operator ((0.1.Dc + 0.1.Dc + 0.1.Dc) = 0.3)"
+        )
+        assertEquals(
+            "0.001",
+            (0.1.Dc * 0.1.Dc * 0.1.Dc).toRawDecimalString(),
             "operator ((0.1.Dc + 0.1.Dc + 0.1.Dc) = 0.3)"
         )
     }
@@ -52,14 +68,14 @@ class ArithmeticAssignOperatorsTest {
         d -= 3.Dc
         assertEquals(
             "9",
-            d.toPlainString(),
+            d.toRawDecimalString(),
             "operator (12.Dc -= 3.Dc)"
         )
         d=12.Dc
         d -= 3
         assertEquals(
             "9",
-            d.toPlainString(),
+            d.toRawDecimalString(),
             "operator (12.Dc -= 3)"
         )
     }
@@ -72,14 +88,14 @@ class ArithmeticAssignOperatorsTest {
         d *= 3.Dc
         assertEquals(
             "36",
-            d.toPlainString(),
+            d.toRawDecimalString(),
             "operator (12.Dc *= 3.Dc)"
         )
         d=12.Dc
         d *= 3
         assertEquals(
             "36",
-            d.toPlainString(),
+            d.toRawDecimalString(),
             "operator (12.Dc *= 3)"
         )
     }
@@ -90,28 +106,28 @@ class ArithmeticAssignOperatorsTest {
         d /= 3.Dc
         assertEquals(
             "4",
-            d.toPlainString(),
+            d.toRawDecimalString(),
             "operator (12.Dc /= 3.Dc)"
         )
         d=12.Dc
         d /= 3
         assertEquals(
             "4",
-            d.toPlainString(),
+            d.toRawDecimalString(),
             "operator (12.Dc /= 3)"
         )
         d=1.Dc
         d /= 3
         assertEquals(
             "0.333333333333333",
-            d.toPlainString(),
+            d.toRawDecimalString(),
             "operator (1.Dc /= 3)"
         )
         d=2.Dc
         d /= 3
         assertEquals(
             "0.666666666666667",
-            d.toPlainString(),
+            d.toRawDecimalString(),
             "operator (2.Dc /= 3)"
         )
     }
@@ -123,14 +139,14 @@ class ArithmeticAssignOperatorsTest {
         d %= 3.Dc
         assertEquals(
             "0",
-            d.toPlainString(),
+            d.toRawDecimalString(),
             "operator (12.Dc %= 3)"
         )
         d=12.Dc
         d %= 3
         assertEquals(
             "0",
-            d.toPlainString(),
+            d.toRawDecimalString(),
             "operator (12.Dc %= 3)"
         )
     }

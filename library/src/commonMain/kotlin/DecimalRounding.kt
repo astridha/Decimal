@@ -49,9 +49,9 @@ internal fun roundWithMode(currentMantissa: Long, currentDecimals: Int, desiredD
     if (roundingMode == Decimal.RoundingMode.HALF_EVEN) {
         // find the neighboring even value only if exactly in the middle (half) = 5
         // this value can be found in roundingOffset, which is 5[00...]
-        val isMidpoint = ((currentMantissa % roundingDivisor) == roundingOffset)
-        println("HALF_EVEN: trailingDigit: ${(currentMantissa % roundingDivisor)}, roundingOffset: ${(roundingOffset)} => isMidpoint: ${isMidpoint}")
-        if (isMidpoint) {
+        val isExactlyHalf = ((currentMantissa % roundingDivisor) == roundingOffset)
+        println("HALF_EVEN: trailingDigit: ${(currentMantissa % roundingDivisor)}, roundingOffset: ${(roundingOffset)} => isExactlyHalf: ${isExactlyHalf}")
+        if (isExactlyHalf) {
             val nextDigit = (((currentMantissa + roundingOffset) / roundingDivisor) % 10)
             //println("Peep! (($currentMantissa + $roundingOffset) / $roundingDivisor) = ${((currentMantissa+roundingOffset) / roundingDivisor)}, Next digit is: ${nextDigit}")
             if ((nextDigit % 2) != 0L) {halfEvenOffset  = if (currentMantissa < 0) 1 else -1}

@@ -8,17 +8,17 @@ class DecimalCoreTest {
     @Test fun intConstructorTests() {
         assertEquals(
             "15",
-            Decimal(15L).toPlainString(),
+            Decimal(15L).toRawDecimalString(),
             "intConstructor: 15L"
         )
         assertEquals(
             "16",
-            (16).Dc.toPlainString(),
+            (16).Dc.toRawDecimalString(),
             "Int.Dc Constructor: 16"
         )
         assertEquals(
             "17.5",
-            (17.5).Dc.toPlainString(),
+            (17.5).Dc.toRawDecimalString(),
             "Double.Dc Constructor: 17.5"
         )
         Decimal.setMinDecimals(2)
@@ -53,22 +53,22 @@ class DecimalCoreTest {
         Decimal.setPrecision(15) // default
         assertEquals(
             "100000.47",
-            Decimal(100000.47).toPlainString(),
+            Decimal(100000.47).toRawDecimalString(),
             "DoubleConstructor: 100000.47"
         )
         assertEquals(
             "15.00000001",
-            Decimal(15.00000001).toPlainString(),
+            Decimal(15.00000001).toRawDecimalString(),
             "DoubleConstructor: 15"
         )
         assertEquals(
             "15.000000000001",
-            Decimal(15.000000000001).toPlainString(),
+            Decimal(15.000000000001).toRawDecimalString(),
             "DoubleConstructor: 15 (d=12)"
         )
         assertEquals(
             "15.0000000000001",
-            Decimal(15.0000000000001).toPlainString(),
+            Decimal(15.0000000000001).toRawDecimalString(),
             "DoubleConstructor: 15 (d=13)"
         )
         assertEquals(
@@ -78,7 +78,7 @@ class DecimalCoreTest {
         )
         assertEquals(
             "15.00000000000001",
-            Decimal(15.00000000000001).toPlainString(),
+            Decimal(15.00000000000001).toRawDecimalString(),
             "DoubleConstructor: 15 (d=14)"
         )
         Decimal.setPrecision(5)
@@ -105,18 +105,18 @@ class DecimalCoreTest {
         )
         assertEquals(
             "15",
-            Decimal(15.000000000000009).toPlainString(),
+            Decimal(15.000000000000009).toRawDecimalString(),
             "DoubleConstructor: 15.000000000000009 (d=15, p=6)"
         )
         Decimal.setPrecision(15)
         assertEquals(
             "15.000000000000009",
-            Decimal(15.000000000000009).toPlainString(),
+            Decimal(15.000000000000009).toRawDecimalString(),
             "DoubleConstructor: 15.000000000000009 (d=15, p=15)"
         )
         assertEquals(
             "15",
-            Decimal(15).toPlainString(),
+            Decimal(15).toRawDecimalString(),
             "intConstructor: 15"
         )
     }
@@ -126,12 +126,12 @@ class DecimalCoreTest {
         Decimal.setPrecision(15) // default
         assertEquals(
             "100000.47",
-            Decimal(100000.47F).toPlainString(),
+            Decimal(100000.47F).toRawDecimalString(),
             "floatConstructor: 10000000.47"
         )
         assertEquals(
             "10000.47",
-            (10000.47F).toDecimal().toPlainString(),
+            (10000.47F).toDecimal().toRawDecimalString(),
             "Float.toDecimal(): 10000.47"
         )
         assertEquals(
@@ -141,7 +141,7 @@ class DecimalCoreTest {
         )
         assertEquals(
             "15.3",
-            (15.3F).toDecimal().toPlainString(),
+            (15.3F).toDecimal().toRawDecimalString(),
             "float.toDecimal(): 15.3F"
         )
 
@@ -150,47 +150,47 @@ class DecimalCoreTest {
     @Test fun stringConstructorTests() {
         assertEquals(
             "123",
-            Decimal("123").toPlainString(),
+            Decimal("123").toRawDecimalString(),
             "stringConstructor: 123"
             )
         assertEquals(
             "123000",
-            Decimal("123000").toPlainString(),
+            Decimal("123000").toRawDecimalString(),
             "stringConstructor: 123000"
         )
         assertEquals(
             "123",
-            Decimal("123.000").toPlainString(),
+            Decimal("123.000").toRawDecimalString(),
             "stringConstructor: 123.000"
         )
         assertEquals(
             "123.4",
-            Decimal("123.4").toPlainString(),
+            Decimal("123.4").toRawDecimalString(),
             "stringConstructor: 123.4"
         )
         assertEquals(
             "-123.004",
-            Decimal("-123.004").toPlainString(),
+            Decimal("-123.004").toRawDecimalString(),
             "stringConstructor: -123.004"
         )
         assertEquals(
             "1.234",
-            Decimal("1.234E0").toPlainString(),
+            Decimal("1.234E0").toRawDecimalString(),
             "stringConstructor: 1.234E0"
         )
         assertEquals(
             "123.4",
-            Decimal("1.234E2").toPlainString(),
+            Decimal("1.234E2").toRawDecimalString(),
             "stringConstructor: 1.234E2"
         )
         assertEquals(
             "-123.4",
-            Decimal("-1.234E2").toPlainString(),
+            Decimal("-1.234E2").toRawDecimalString(),
             "stringConstructor: -1.234E2"
         )
         assertEquals(
             "0.01234",
-            Decimal("1.234E-2").toPlainString(),
+            Decimal("1.234E-2").toRawDecimalString(),
             "stringConstructor: 1.234E-2"
         )
 
@@ -199,33 +199,33 @@ class DecimalCoreTest {
     @Test fun toPlainStringTests() {
         assertEquals(
             "123",
-            Decimal(123L, 0, true).toPlainString(),
+            Decimal(123L, 0, true).toRawDecimalString(),
             "toPlainString: +mantissa 123L, 0 places 0"
         )
         assertEquals(
             "1.24",
-            Decimal(124L, 2, true).toPlainString(),
+            Decimal(124L, 2, true).toRawDecimalString(),
             "toPlainString: +mantissa, 124L +places 2"
         )
         assertEquals(
             "12500",
-            Decimal(125L, -2, true).toPlainString(),
+            Decimal(125L, -2, true).toRawDecimalString(),
             "toPlainString: +mantissa 125L, -places -2"
         )
         assertEquals(
             "-125",
-            Decimal(-125L, 0, true).toPlainString(),
+            Decimal(-125L, 0, true).toRawDecimalString(),
             "toPlainString: -mantissa -125L, 0 places"
         )
         assertEquals(
             "-1.25",
-            Decimal(-125L, +2, true).toPlainString(),
+            Decimal(-125L, +2, true).toRawDecimalString(),
             "toPlainString: -mantissa -125L, +places +2"
         )
         assertEquals(
             "12500",
             //Decimal(-125L, -2, true).toPlainString(),
-            12500F.Dc.toPlainString(),
+            12500F.Dc.toRawDecimalString(),
             "toPlainString: -mantissa -125L, -places -2"
         )
     }

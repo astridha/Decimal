@@ -1,12 +1,19 @@
 package io.github.astridha.decimal
 
+
+/*********  Math-like implementations *************/
+
 public fun abs(d: Decimal) : Decimal = d.abs()
-public fun round(d: Decimal) : Decimal = d.setScale(0)
-public fun ceil(d: Decimal) : Decimal = d.setScale(0, Decimal.RoundingMode.CEILING)
-public fun floor(d: Decimal) : Decimal = d.setScale(0, Decimal.RoundingMode.FLOOR)
+public fun round(d: Decimal) : Decimal = d.round()
+public fun ceil(d: Decimal) : Decimal = d.ceil()
+public fun floor(d: Decimal) : Decimal = d.floor()
+public fun truncate(d: Decimal) : Decimal = d.truncate()
 public fun max(a: Decimal, b:Decimal) : Decimal = if (a > b) a; else b
 public fun min(a: Decimal, b:Decimal) : Decimal = if (a < b) a; else b
 public fun sign(d: Decimal) : Decimal = d.sign
+
+
+/************  Everything toDecimal() **************/
 
 public fun String.toDecimal():Decimal = Decimal(this)
 public fun Float.toDecimal():Decimal = Decimal(this)
@@ -21,6 +28,9 @@ public fun UInt.toDecimal():Decimal = Decimal(this)
 public fun Long.toDecimal():Decimal = Decimal(this)
 public fun ULong.toDecimal():Decimal = Decimal(this)
 
+
+/****************************  Convenience Suffix .Dc  ***************************/
+
 public val String.Dc: Decimal inline get() = Decimal(this)
 public val Double.Dc: Decimal inline get() = Decimal(this)
 public val Float.Dc: Decimal inline get() = Decimal(this)
@@ -34,7 +44,8 @@ public val UInt.Dc: Decimal inline get() = Decimal(this)
 public val UShort.Dc: Decimal inline get() = Decimal(this)
 public val UByte.Dc: Decimal inline get() = Decimal(this)
 
-//  Arithmetic
+
+/***************  Foreign Operator Arithmetics  ***********************/
 
 public operator fun Double.plus(other: Decimal) : Decimal = other.plus(this)
 public operator fun Double.minus(other: Decimal) : Decimal = other.minus(this)
@@ -97,4 +108,4 @@ public operator fun UByte.div(other: Decimal) : Decimal = other.div(this)
 public operator fun UByte.rem(other: Decimal) : Decimal = other.rem(this)
 
 
-//impossible: public operator fun Int.plusAssign(other: Decimal) : Unit = other.plusAssign(this)
+// impossible: public operator fun Int.plusAssign(other: Decimal) : Unit = other.plusAssign(this)
