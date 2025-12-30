@@ -148,11 +148,27 @@ class DecimalCoreTest {
     }
 
     @Test fun stringConstructorTests() {
+        Decimal.setThrowOnErrors(true)
+        assertEquals(
+            null,
+            "abc".toDecimalOrNull()?.toRawDecimalString(),
+            "stringConstructor toDecimalOrNull: abc"
+        )
+        assertEquals(
+            "0",
+            "abc".toDecimal().toRawDecimalString(),
+            "stringConstructor toDecimal: abc"
+        )
+        assertEquals(
+            "123",
+            Decimal("abc").toRawDecimalString(),
+            "stringConstructor: abc"
+        )
         assertEquals(
             "123",
             Decimal("123").toRawDecimalString(),
             "stringConstructor: 123"
-            )
+        )
         assertEquals(
             "123000",
             Decimal("123000").toRawDecimalString(),

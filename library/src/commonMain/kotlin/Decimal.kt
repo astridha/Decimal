@@ -1,5 +1,6 @@
 package io.github.astridha.decimal
 
+import io.github.astridha.decimal.Decimal.*
 import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.sign
@@ -24,35 +25,25 @@ public open class Decimal : Number, Comparable<Decimal> {
         UNNECESSARY
     }
 
+    internal enum class ArithmeticErrors { // max 15, for 4 Byte decimals field when mantissa == 0!
+        ALL_OK,
+        NO_NUMBER,
+        OVERFLOW
+
+    }
+
 
     /***********************  Secondary Constructors  ************************/
 
-    // see also the invoke expressions in Companion object, for all constructors out of integer types!
-
+    // see also the invoke expressions in Companion object, for all constructors based on integer types!
+    @Throws(NumberFormatException::class)
     public constructor (rawNumberString: String) {
-
-        val cleanedNumberString = rawNumberString.replace("_","").replace(" ","")
-
-        val decimalNumberPattern = """(?<integer>[+-]?\d*)(?:\.(?<fraction>\d*))?(?:[Ee](?<exponent>[+-]?\d+))?"""
-        val decimalNumberRegex = Regex(decimalNumberPattern)
-
-        val match = decimalNumberRegex.matchEntire(cleanedNumberString) ?: return
-        // will automatically call this(0L,0)
-
-        val exponent = (match.groups["exponent"]?.value ?: "0").toInt()
-
-        val fractionString = (match.groups["fraction"]?.value ?: "0").trimEnd('0')
-        var decimalPlaces = fractionString.length
-
-        var integerString = match.groups["integer"]?.value ?: ""
-
-        var mantissaString = integerString + fractionString
-        decimalPlaces -= exponent                 // exponent calculates reverse, 0 - exponent = decimal places!
-
-        if (mantissaString in listOf("+","- ", "")) mantissaString +="0"
-        val mantissa: Long = mantissaString.toLong()
-
-        decimal64 = pack64(mantissa, decimalPlaces)
+        val decimPair: Pair<Long, Int>? = mkDecimalParseOrNull(rawNumberString, false)
+        if (decimPair != null) {
+            decimal64 = pack64(decimPair.first, decimPair.second)
+        } else {
+            decimal64 = pack64(0, ArithmeticErrors.NO_NUMBER.ordinal)
+        }
     }
 
     public constructor (input:Float): this(input.toString())
@@ -508,17 +499,34 @@ public open class Decimal : Number, Comparable<Decimal> {
         public operator fun invoke(input:Long): Decimal = Decimal(input,0,true)
         public operator fun invoke(input:ULong): Decimal = Decimal(input.toLong(),0, true)
 
+        public fun mkDecimalOrNull(NumberString: String): Decimal? {
+            val decimPair: Pair<Long, Int>? = mkDecimalParseOrNull(NumberString, true)
+            if (decimPair != null) {
+                return Decimal(decimPair.first, decimPair.second, false)
+            } else {
+                return null
+            }
+        }
+
         public const val MAX_VALUE: Long = +576460752303423487L
         public const val MIN_VALUE: Long = -576460752303423487L
-        public const val NOT_A_NUMBER: Long = -576460752303423488L
+        //public const val NOT_A_NUMBER: Long = -576460752303423488L
 
         public const val MAX_DECIMALS: Int = 15
         public const val MAX_SIGNIFICANTS: Int = 17
 
         public val ONE: Decimal = Decimal(1,0,true)
 
-        public val NaN: Decimal = Decimal(NOT_A_NUMBER,0, true)
+        public val NaN: Decimal = Decimal(0, ArithmeticErrors.NO_NUMBER.ordinal, true)
         // static (common) variables and functions
+
+        // throw exceptions on all kind of errors?
+        internal var shallThrowOnError: Boolean = false
+        public fun setThrowOnErrors(shallThrow: Boolean) {
+            shallThrowOnError = shallThrow
+        }
+        public fun getThrowOnErrors(): Boolean = shallThrowOnError
+
 
         // for automatic rounding
         private var autoPrecision: Int = 15 /* 0 - 15 */
