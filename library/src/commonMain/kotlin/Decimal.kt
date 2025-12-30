@@ -1,6 +1,5 @@
 package io.github.astridha.decimal
 
-import io.github.astridha.decimal.Decimal.*
 import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.sign
@@ -38,11 +37,11 @@ public open class Decimal : Number, Comparable<Decimal> {
     // see also the invoke expressions in Companion object, for all constructors based on integer types!
     @Throws(NumberFormatException::class)
     public constructor (rawNumberString: String) {
-        val decimPair: Pair<Long, Int>? = mkDecimalParseOrNull(rawNumberString, false)
-        if (decimPair != null) {
-            decimal64 = pack64(decimPair.first, decimPair.second)
+        val decimalPair: Pair<Long, Int>? = mkDecimalParseOrNull(rawNumberString, false)
+        decimal64 = if (decimalPair != null) {
+            pack64(decimalPair.first, decimalPair.second)
         } else {
-            decimal64 = pack64(0, ArithmeticErrors.NO_NUMBER.ordinal)
+            pack64(0, ArithmeticErrors.NO_NUMBER.ordinal)
         }
     }
 
@@ -51,8 +50,8 @@ public open class Decimal : Number, Comparable<Decimal> {
 
     public constructor (other: Decimal) { decimal64 = other.decimal64 }
 
-    internal constructor (mantissa: Long, decimalplaces: Int, omitNormalize:Boolean)  {
-        decimal64 = pack64(mantissa,decimalplaces, omitNormalize)
+    internal constructor (mantissa: Long, decimalPlaces: Int, omitNormalize:Boolean)  {
+        decimal64 = pack64(mantissa,decimalPlaces, omitNormalize)
     }
 
     /**************************** Private Helper Methods  ********************************/
@@ -499,12 +498,12 @@ public open class Decimal : Number, Comparable<Decimal> {
         public operator fun invoke(input:Long): Decimal = Decimal(input,0,true)
         public operator fun invoke(input:ULong): Decimal = Decimal(input.toLong(),0, true)
 
-        public fun mkDecimalOrNull(NumberString: String): Decimal? {
-            val decimPair: Pair<Long, Int>? = mkDecimalParseOrNull(NumberString, true)
-            if (decimPair != null) {
-                return Decimal(decimPair.first, decimPair.second, false)
+        public fun mkDecimalOrNull(numberString: String): Decimal? {
+            val decimPair: Pair<Long, Int>? = mkDecimalParseOrNull(numberString, true)
+            return if (decimPair != null) {
+                Decimal(decimPair.first, decimPair.second, false)
             } else {
-                return null
+                null
             }
         }
 
@@ -521,7 +520,7 @@ public open class Decimal : Number, Comparable<Decimal> {
         // static (common) variables and functions
 
         // throw exceptions on all kind of errors?
-        internal var shallThrowOnError: Boolean = false
+        internal var shallThrowOnError: Boolean = true
         public fun setThrowOnErrors(shallThrow: Boolean) {
             shallThrowOnError = shallThrow
         }

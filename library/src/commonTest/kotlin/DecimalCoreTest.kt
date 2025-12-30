@@ -2,6 +2,7 @@ package io.github.astridha.decimal
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class DecimalCoreTest {
 
@@ -148,23 +149,22 @@ class DecimalCoreTest {
     }
 
     @Test fun stringConstructorTests() {
-        Decimal.setThrowOnErrors(true)
         assertEquals(
             null,
             "abc".toDecimalOrNull()?.toRawDecimalString(),
-            "stringConstructor toDecimalOrNull: abc"
+            "string \"abc\".toDecimalOrNull()"
         )
-        assertEquals(
-            "0",
-            "abc".toDecimal().toRawDecimalString(),
-            "stringConstructor toDecimal: abc"
+        assertFailsWith(
+            NumberFormatException::class,
+            "string  \"abc\".toDecimal()",
+            {"abc".toDecimal().toRawDecimalString()}
         )
-        assertEquals(
-            "123",
-            Decimal("abc").toRawDecimalString(),
-            "stringConstructor: abc"
+        assertFailsWith(
+            NumberFormatException::class,
+            "stringConstructor: abc",
+            {Decimal("abc").toRawDecimalString()}
         )
-        assertEquals(
+         assertEquals(
             "123",
             Decimal("123").toRawDecimalString(),
             "stringConstructor: 123"
