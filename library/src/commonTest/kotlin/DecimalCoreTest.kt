@@ -254,12 +254,12 @@ class DecimalCoreTest {
         )
         assertEquals(
             "1.24E-8",
-            Decimal(124L, 10,false).toScientificString(),
+            Decimal(124L, 10,true).toScientificString(),
             "toScientific: +mantissa, +places"
         )
         assertEquals(
             "1.25E4",
-            Decimal(125L, -2, false).toScientificString(),
+            Decimal(125L, -2, true).toScientificString(),
             "toScientific: +mantissa 125L, -places -2"
         )
         assertEquals(
@@ -269,12 +269,12 @@ class DecimalCoreTest {
         )
         assertEquals(
             "-1.25E-8",
-            Decimal(-125L, 10, false).toScientificString(),
+            Decimal(-125L, 10, true).toScientificString(),
             "toScientific: -mantissa, +places, '-1.25E-8'"
         )
         assertEquals(
             "-1.25E12",
-            Decimal(-125L, -10, false).toScientificString(),
+            Decimal(-125L, -10, true).toScientificString(),
             "toScientific: -mantissa, -places, '1.25E12'"
         )
 

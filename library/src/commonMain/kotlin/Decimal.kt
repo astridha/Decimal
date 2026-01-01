@@ -36,13 +36,14 @@ public open class Decimal : Number, Comparable<Decimal> {
     /***********************  Secondary Constructors  ************************/
 
     // see also the invoke expressions in Companion object, for all constructors based on integer types!
-    @Throws(NumberFormatException::class)
-    public constructor (rawNumberString: String) {
+
+    public constructor (rawNumberString: String) { // oder ecpliziter RoundingMode?
         val decimalPair: Pair<Long, Int>? = mkDecimalParseOrNull(rawNumberString, false)
-        decimal64 = if (decimalPair != null) {
-            pack64(decimalPair.first, decimalPair.second)
+        if (decimalPair != null) {
+            val (nmantissa, ndecimals) = roundWithMode(decimalPair.first, decimalPair.second, min(autoPrecision, MAX_DECIMAL_PLACES), autoRoundingMode)
+            decimal64 = pack64(nmantissa, ndecimals, true)
         } else {
-            pack64(0, ArithmeticErrors.NOT_A_NUMBER.ordinal)
+            decimal64 = pack64(0, ArithmeticErrors.NOT_A_NUMBER.ordinal, true)
         }
     }
 
@@ -72,7 +73,7 @@ public open class Decimal : Number, Comparable<Decimal> {
         return Pair(mantissa, decimals)
     }
 
-    private fun pack64(pmantissa: Long, pdecimals: Int, omitNormalize:Boolean = false): Long {
+    private fun pack64(pmantissa: Long, pdecimals: Int, omitNormalize:Boolean): Long {
         var mantissa = pmantissa
         var decimals =  if (mantissa == 0L) 0; else pdecimals
         if (decimals != 0) {
@@ -89,7 +90,7 @@ public open class Decimal : Number, Comparable<Decimal> {
                 decimals--
             }
         }
-        // now round if required
+        // now round only if required
         if ((decimals != 0) and !(omitNormalize)) {
             val maxdecimals = min(autoPrecision, MAX_DECIMAL_PLACES)
             val (nmantissa, ndecimals) = roundWithMode(mantissa, decimals, maxdecimals, autoRoundingMode)
@@ -195,7 +196,7 @@ public open class Decimal : Number, Comparable<Decimal> {
         val (thism, thisd) = unpack64()
         val (thatm, thatd) = other.unpack64()
         val (thismantissa,thatmantissa, decimals) = equalizeDecimals(thism, thisd, thatm, thatd)
-        return Decimal(thismantissa+thatmantissa, decimals, false)
+        return Decimal(thismantissa+thatmantissa, decimals, true)
     }
     public operator fun plus(other: Double) : Decimal = plus(other.toDecimal())
     public operator fun plus(other: Float) : Decimal = plus(other.toDecimal())
@@ -215,7 +216,7 @@ public open class Decimal : Number, Comparable<Decimal> {
         val (thism, thisd) = unpack64()
         val (thatm, thatd) = other.unpack64()
         val (thismantissa,thatmantissa, decimals) = equalizeDecimals(thism, thisd, thatm, thatd)
-        return Decimal(thismantissa-thatmantissa, decimals, false)
+        return Decimal(thismantissa-thatmantissa, decimals, true)
     }
     public operator fun minus(other: Double) : Decimal = minus(other.toDecimal())
     public operator fun minus(other: Float) : Decimal = minus(other.toDecimal())
@@ -234,7 +235,7 @@ public open class Decimal : Number, Comparable<Decimal> {
     public operator fun times(other: Decimal) : Decimal {
         val (thismantissa, thisdecimals) = unpack64()
         val (thatmantissa, thatdecimals) = other.unpack64()
-        return Decimal(thismantissa*thatmantissa, thisdecimals+thatdecimals, false)
+        return Decimal(thismantissa*thatmantissa, thisdecimals+thatdecimals, true)
     }
     public operator fun times(other: Double) : Decimal = times(other.toDecimal())
     public operator fun times(other: Float) : Decimal = times(other.toDecimal())
@@ -257,7 +258,7 @@ public open class Decimal : Number, Comparable<Decimal> {
             if (shallThrowOnError) throw ArithmeticException("Division by 0")
             return Decimal(0, ArithmeticErrors.DIV_0.ordinal,true)
         }
-        while ((thisd - thatd) < 17) {
+        while ((thisd - thatd) < MAX_DECIMAL_SIGNIFICANTS) {
             if ((thatm * (thism / thatm)) == thism) break // rest 0, done
             if (abs(thism) > (Long.MAX_VALUE/10)) break // would overflow
             thism *=10; thisd++
@@ -510,6 +511,7 @@ public open class Decimal : Number, Comparable<Decimal> {
     /***************************  Companion Object  **************************************/
 
     public companion object {
+        // Simulating a constructor out of a single integer type
         public operator fun invoke(input:Byte): Decimal = Decimal(input.toLong(),0, true)
         public operator fun invoke(input:UByte): Decimal = Decimal(input.toLong(),0, true)
         public operator fun invoke(input:Short): Decimal = Decimal(input.toLong(),0,true)
@@ -519,7 +521,7 @@ public open class Decimal : Number, Comparable<Decimal> {
         public operator fun invoke(input:Long): Decimal = Decimal(input,0,true)
         public operator fun invoke(input:ULong): Decimal = Decimal(input.toLong(),0, true)
 
-        public fun mkDecimalOrNull(numberString: String): Decimal? {
+        internal fun mkDecimalOrNull(numberString: String): Decimal? {
             val decimPair: Pair<Long, Int>? = mkDecimalParseOrNull(numberString, true)
             return if (decimPair != null) {
                 Decimal(decimPair.first, decimPair.second, false)

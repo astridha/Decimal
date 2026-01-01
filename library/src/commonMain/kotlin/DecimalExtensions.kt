@@ -108,5 +108,3 @@ public operator fun UByte.times(other: Decimal) : Decimal = other.times(this)
 public operator fun UByte.div(other: Decimal) : Decimal = other.div(this)
 public operator fun UByte.rem(other: Decimal) : Decimal = other.rem(this)
 
-
-// impossible: public operator fun Int.plusAssign(other: Decimal) : Unit = other.plusAssign(this)

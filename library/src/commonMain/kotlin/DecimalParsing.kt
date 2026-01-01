@@ -10,8 +10,11 @@ internal fun mkDecimalParseOrNull (rawNumberString: String, orNull: Boolean) : P
     val match = decimalNumberRegex.matchEntire(cleanedNumberString)
 
     if (match == null) {
+
         if (orNull) return null
+
         if (Decimal.getThrowOnErrors()) throw NumberFormatException("INVALID DECIMAL FORMAT: \"$rawNumberString\"")
+
         return Pair(0, Decimal.ArithmeticErrors.NOT_A_NUMBER.ordinal)
 
     } else {

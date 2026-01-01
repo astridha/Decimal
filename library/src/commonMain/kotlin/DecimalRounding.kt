@@ -28,6 +28,11 @@ internal fun getRoundingModeSpecificCalculation(roundingMode: Decimal.RoundingMo
 internal fun roundWithMode(rawMantissa: Long, rawDecimals: Int, desiredDecimals: Int, roundingMode: Decimal.RoundingMode): Pair<Long, Int> {
     var currentMantissa = rawMantissa
     var currentDecimals = rawDecimals
+    // truncate any empty decimal places
+    while ((currentDecimals > 0) and (currentMantissa != 0L) and ((currentMantissa % 10) == 0L)) {
+        currentMantissa /= 10
+        currentDecimals--
+    }
 
     if (desiredDecimals >= currentDecimals) {
         // nothing to round
