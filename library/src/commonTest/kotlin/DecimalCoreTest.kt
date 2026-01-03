@@ -209,6 +209,33 @@ class DecimalCoreTest {
             Decimal("1.234E-2").toRawDecimalString(),
             "stringConstructor: 1.234E-2"
         )
+        assertEquals(
+            "0.12345678901234",
+            Decimal("0.12345678901234").toRawDecimalString(),
+            "stringConstructor: \"0.12345678901234\""
+        )
+        assertEquals(
+            "0.123456789012346",
+            Decimal("0.1234567890123456").toRawDecimalString(),
+            "stringConstructor: \"0.1234567890123456\", with rounding"
+        )
+        assertEquals(
+            "123456.12345678",
+            Decimal("123456.1234567800000000").toRawDecimalString(),
+            "stringConstructor: \"123456.1234567800000000\", with rounding"
+        )
+        Decimal.setMaxDecimalPlaces(3)
+        assertEquals(
+            "123456.123",
+            Decimal("123456.1234567890123456").toRawDecimalString(),
+            "stringConstructor: \"123456.1234567890123456\", with rounding to 3 dplc"
+        )
+        Decimal.setMaxDecimalPlaces(15)
+        assertFailsWith(
+            ArithmeticException::class,
+            "stringConstructor: \"123456.1234567890123456\", with rounding",
+            {Decimal("123456.1234567890123456").toRawDecimalString()}
+         )
 
     }
 

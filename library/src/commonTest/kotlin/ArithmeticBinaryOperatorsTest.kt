@@ -92,6 +92,11 @@ class ArithmeticBinaryOperatorsTest {
             mydeci.toRawDecimalString(),
             "operator with mydeci = (1.3.Dc * 2)"
         )
+        assertEquals(
+            "2.6",
+            (1999999999.Dc * 99999999999.Dc).toRawDecimalString(),
+            "operator with (1999999999.Dc * 99999999999.Dc)"
+        )
     }
 
     @Test

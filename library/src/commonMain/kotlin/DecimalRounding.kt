@@ -40,8 +40,9 @@ internal fun roundWithMode(rawMantissa: Long, rawDecimals: Int, desiredDecimals:
     }
 
     if (roundingMode == Decimal.RoundingMode.UNNECESSARY) {
-        // should round, but rounding is forbidden
-        throw ArithmeticException("Rounding is necessary")
+        // should round, but rounding is forbidden!
+        if (Decimal.shallThrowOnError) throw ArithmeticException("ROUNDING NECESSARY")
+        return Pair(0L, Decimal.ArithmeticErrors.ROUNDING_FAILED.ordinal)
     }
     println("\nold: mantissa:$currentMantissa, currentDecimals:$currentDecimals, desiredDecimals:$desiredDecimals, mode:$roundingMode")
     val wholeRoundingDistance: Int = currentDecimals - desiredDecimals
@@ -53,7 +54,7 @@ internal fun roundWithMode(rawMantissa: Long, rawDecimals: Int, desiredDecimals:
     val roundingDivisor = getPower10(wholeRoundingDistance)
     val roundingOffset = ((roundingDivisor * mult)/ 10) + bias
 
-    println("Mult:$mult, Bias:$bias => roundingDivisor: $roundingDivisor, roundingOffset: $roundingOffset")
+    println("Distance: $wholeRoundingDistance, Mult:$mult, Bias:$bias => roundingDivisor: $roundingDivisor, roundingOffset: $roundingOffset")
 
     var halfEvenOffset = 0
 
