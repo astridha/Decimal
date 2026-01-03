@@ -2,12 +2,12 @@ package io.github.astridha.decimal
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 
 class ArithmeticBinaryOperatorsTest {
 
-    @Test
-    fun opPlusTests() {
+    @Test fun opPlusTests() {
         assertEquals(
             "15",
             (10.Dc + 5.Dc).toRawDecimalString(),
@@ -45,8 +45,7 @@ class ArithmeticBinaryOperatorsTest {
         )
     }
 
-    @Test
-    fun opMinusTests() {
+    @Test fun opMinusTests() {
         assertEquals(
             "6",
             (11.Dc - 5.Dc).toRawDecimalString(),
@@ -64,8 +63,7 @@ class ArithmeticBinaryOperatorsTest {
         )
     }
 
-    @Test
-    fun opTimesTests() {
+    @Test fun opTimesTests() {
         assertEquals(
             "12",
             (3.Dc * 4.Dc).toRawDecimalString(),
@@ -92,15 +90,21 @@ class ArithmeticBinaryOperatorsTest {
             mydeci.toRawDecimalString(),
             "operator with mydeci = (1.3.Dc * 2)"
         )
+        /*
         assertEquals(
             "2.6",
             (1999999999.Dc * 99999999999.Dc).toRawDecimalString(),
             "operator with (1999999999.Dc * 99999999999.Dc)"
         )
+        */
+        assertFailsWith(
+            ArithmeticException::class,
+            "operator with (1999999999.Dc * 99999999999.Dc)",
+            {(1999999999.Dc * 99999999999.Dc).toRawDecimalString()}
+        )
     }
 
-    @Test
-    fun opDivTests() {
+    @Test fun opDivTests() {
         assertEquals(
             "4",
             (12.Dc / 3.Dc).toRawDecimalString(),
@@ -145,8 +149,7 @@ class ArithmeticBinaryOperatorsTest {
         )
     }
 
-    @Test
-    fun opRemTests() {
+    @Test fun opRemTests() {
         assertEquals(
             "0",
             (12.Dc % 3.Dc).toRawDecimalString(),
