@@ -1,5 +1,10 @@
 package io.github.astridha.decimal
 
+import io.github.astridha.decimal.Decimal.ArithmeticErrors
+import io.github.astridha.decimal.Decimal.Companion.MAX_VALUE
+import io.github.astridha.decimal.Decimal.Companion.shallThrowOnError
+import kotlin.math.abs
+
 internal fun getPower10(exponent: Int) : Long { // only for between 0 and 16!!!
     var power: Long = 1
     if (exponent < 0) return 0 // solve somehow else, but generally shouldn't happen
@@ -24,7 +29,7 @@ internal fun getRoundingModeSpecificCalculation(roundingMode: Decimal.RoundingMo
 // Cannot assume that raw values were previously stored in a Decimal, they may come from parsing!
 // desiredDecimals can be below 0, which means that the lowest pre-comma places will also be rounded to 0
 // but resulting decimal places must aim between 0 and 15, independent of autoprecision
-// and long rawMantissa must also be handled and be shortened if greater than MAX_VALUE/MIN_VALUE
+// and long rawMantissa must also be handled and be shortened if greater than MAX_DECIMAL_VALUE/MIN_DECIMAL_VALUE
 internal fun roundWithMode(rawMantissa: Long, rawDecimals: Int, desiredDecimals: Int, roundingMode: Decimal.RoundingMode): Pair<Long, Int> {
     var currentMantissa = rawMantissa
     var currentDecimals = rawDecimals
@@ -62,7 +67,7 @@ internal fun roundWithMode(rawMantissa: Long, rawDecimals: Int, desiredDecimals:
         // find the neighboring even value only if exactly in the middle (half) = 5
         // this value can be found in roundingOffset, which is 5[00...]
         val isExactlyHalf = ((currentMantissa % roundingDivisor) == roundingOffset)
-        println("HALF_EVEN: trailingDigit: ${(currentMantissa % roundingDivisor)}, roundingOffset: ${(roundingOffset)} => isExactlyHalf: ${isExactlyHalf}")
+        println("HALF_EVEN: mantissaHalfFraction: ${(currentMantissa % roundingDivisor)}, roundingOffset: ${(roundingOffset)} => isExactlyHalf: ${isExactlyHalf}")
         if (isExactlyHalf) {
             val nextDigit = (((currentMantissa + roundingOffset) / roundingDivisor) % 10)
             //println("Peep! (($currentMantissa + $roundingOffset) / $roundingDivisor) = ${((currentMantissa+roundingOffset) / roundingDivisor)}, Next digit is: ${nextDigit}")
@@ -89,6 +94,12 @@ internal fun roundWithMode(rawMantissa: Long, rawDecimals: Int, desiredDecimals:
     while ((newDecimals > 0) and (newMantissa != 0L) and ((newMantissa % 10) == 0L)) {
         newMantissa /= 10
         newDecimals--
+    }
+    if (abs(newMantissa) > MAX_VALUE) {
+        println("Ups!")
+        if (shallThrowOnError) throw ArithmeticException("ARITHMETIC OVERFLOW: \"Value won't fit into Decimal\"")
+        newMantissa = 0L
+        newDecimals = ArithmeticErrors.OVERFLOW.ordinal
     }
 
     return Pair(newMantissa, if (newMantissa == 0L) 0; else newDecimals)

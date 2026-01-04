@@ -182,7 +182,7 @@ class DecimalCoreTest {
         assertEquals(
             "123.4",
             Decimal("123.4").toRawDecimalString(),
-            "stringConstructor: 123.4"
+            "stringConstructor: 123.4 (no rounding defined, no decimals defined)"
         )
         assertEquals(
             "-123.004",
@@ -233,9 +233,14 @@ class DecimalCoreTest {
         Decimal.setMaxDecimalPlaces(15)
         assertFailsWith(
             ArithmeticException::class,
-            "stringConstructor: \"123456.1234567890123456\", with rounding",
+            "stringConstructor: \"123456.1234567890123456\", with rounding to 15 dplc",
             {Decimal("123456.1234567890123456").toRawDecimalString()}
-         )
+        )
+        /* assertEquals(
+            "123456.12345678901235",
+            Decimal("123456.1234567890123456").toRawDecimalString(),
+            "stringConstructor: \"123456.1234567890123456\", with rounding to 15 dplc"
+        ) */
 
     }
 
