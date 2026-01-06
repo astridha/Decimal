@@ -67,6 +67,11 @@ class ArithmeticBinaryOperatorsTest {
             (10.4.Dc - 5.38.Dc).toRawDecimalString(),
             "operator (10.4.Dc - 5.38.Dc)"
         )
+        assertEquals(
+            "-5.02",
+            (5.38.Dc - 10.4.Dc).toRawDecimalString(),
+            "operator (5.38.Dc - 10.4.Dc)"
+        )
     }
 
     @Test fun opTimesTests() {
@@ -96,17 +101,22 @@ class ArithmeticBinaryOperatorsTest {
             mydeci.toRawDecimalString(),
             "operator with mydeci = (1.3.Dc * 2)"
         )
+        assertEquals(
+            "-18199999992.72",
+            (1999999999.2.Dc * (-9.1).Dc).toRawDecimalString(),
+            "operator with (19999999992..Dc * (-9.1).Dc)"
+        )
         /*
         assertEquals(
             "2.6",
-            (1999999999.Dc * 99999999999.Dc).toRawDecimalString(),
-            "operator with (1999999999.Dc * 99999999999.Dc)"
+            (1999999999.2.Dc * (-99999999999.1).Dc).toRawDecimalString(),
+            "operator with (1999999999.2.Dc * (-99999999999.1).Dc)"
         )
         */
         assertFailsWith(
             ArithmeticException::class,
-            "operator with (1999999999.Dc * 99999999999.Dc)",
-            {(1999999999.Dc * 99999999999.Dc).toRawDecimalString()}
+            "operator with (1999999999.2.Dc * (-99999999999.1).Dc)",
+            {(1999999999.2.Dc * (-99999999999.1).Dc).toRawDecimalString()}
         )
     }
 

@@ -64,8 +64,6 @@ internal fun mkDecimalParseOrNull (rawNumberString: String, desiredDecimalPlaces
         return Pair(0, Decimal.Error.NOT_A_NUMBER.ordinal)
     }
 
-    println("\nNumberString: \"$cleanedNumberString\"")
-
     val exponent = (match.groups["exponent"]?.value ?: "0").toInt()
 
     val fractionString = (match.groups["fraction"]?.value ?: "").trimEnd('0')
@@ -84,7 +82,7 @@ internal fun mkDecimalParseOrNull (rawNumberString: String, desiredDecimalPlaces
         return Pair(0, Decimal.Error.PARSING_OVERFLOW.ordinal)
     }
 
-    // if necessary, truncate to Long (truncating only decimal digits) and condense again
+    // if necessary, ideally truncate to Long (but truncate only disposable decimal digits) and condense again
     val disposableDecimalPlaces = NumMantissaStringDisposableDecimalPlaces(mantissaString, decimalPlaces)
     if (disposableDecimalPlaces > 0) {
         println("dispose $disposableDecimalPlaces")
@@ -97,7 +95,7 @@ internal fun mkDecimalParseOrNull (rawNumberString: String, desiredDecimalPlaces
         }
     }
 
-    // Give up if mantissa still too long
+    // Give up if mantissa still too long to put it into Long mantissa for later rounding
     if (IsMantissaStringTooLong(mantissaString)) {
         println("I give up. \"$mantissaString\" still too long.")
         if (orNull) return null
@@ -107,7 +105,6 @@ internal fun mkDecimalParseOrNull (rawNumberString: String, desiredDecimalPlaces
     }
 
     if (mantissaString in listOf("+", "- ", "")) mantissaString += "0"
-    println("mantissaString: \"$mantissaString\", decimalPlaces: $decimalPlaces")
     val mantissa: Long = mantissaString.toLong()
 
     return Pair(mantissa, decimalPlaces)

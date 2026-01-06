@@ -263,18 +263,14 @@ public open class Decimal : Number, Comparable<Decimal> {
         val (equalizedThisMantissa,equalizedOtherMantissa, equalizedDecimals) = equalizeDecimals(thisMantissa, thisDecimals, otherMantissa, otherDecimals)
         println("Addition: this: $equalizedThisMantissa other: $equalizedOtherMantissa, sum: ${equalizedThisMantissa + equalizedOtherMantissa}")
         if (equalizedThisMantissa.isNegative() == equalizedOtherMantissa.isNegative() ) {
-            println("!")
-            // only addition might overflow!
+            // addition might overflow!
             var space: Long = MAX_VALUE - abs(equalizedThisMantissa)
-            if (space <= equalizedOtherMantissa) {
+            if (space <= abs(equalizedOtherMantissa)) {
                 if (shallThrowOnError) throw ArithmeticException("${Error.ADD_OVERFLOW}: $this + $other result does not fit into Decimal")
                 return Decimal(0, Error.ADD_OVERFLOW.ordinal, true)
             }
-        } else {
-            // addition cannot overflow
         }
         var equalizedMantissaSum = equalizedThisMantissa + equalizedOtherMantissa
-
         val (roundedMantissa, roundedDecimals) = roundWithMode(equalizedMantissaSum, equalizedDecimals,autoDecimalPlaces, autoRoundingMode)
         return Decimal(roundedMantissa, roundedDecimals, true)
     }
@@ -293,11 +289,32 @@ public open class Decimal : Number, Comparable<Decimal> {
     /***** operator minus (-) *****/
 
     public operator fun minus(other: Decimal) : Decimal {
-        if (isDecimalError(this) or isDecimalError(other)) return this
-        val (thism, thisd) = unpack64()
-        val (thatm, thatd) = other.unpack64()
-        val (thismantissa,thatmantissa, decimals) = equalizeDecimals(thism, thisd, thatm, thatd)
-        return Decimal(thismantissa-thatmantissa, decimals, true)
+        if (Decimal.Companion.isDecimalError(this) or Decimal.Companion.isDecimalError(other)) return this
+        val (thisMantissa, thisDecimals) = unpack64()
+        val (otherMantissa, otherDecimals) = other.unpack64()
+        val (equalizedThisMantissa, equalizedOtherMantissa, equalizedDecimals) = equalizeDecimals(
+            thisMantissa,
+            thisDecimals,
+            otherMantissa,
+            otherDecimals
+        )
+        println("Subtraction: this: $equalizedThisMantissa other: $equalizedOtherMantissa, diff: ${equalizedThisMantissa - equalizedOtherMantissa}")
+        if (equalizedThisMantissa.isNegative() != equalizedOtherMantissa.isNegative()) {
+            // subtraction is addition and might overflow!
+            var space: Long = MAX_VALUE - abs(equalizedThisMantissa)
+            if (space <= abs(equalizedOtherMantissa)) {
+                if (shallThrowOnError) throw ArithmeticException("${Error.SUBTRACT_OVERFLOW}: $this - $other result does not fit into Decimal")
+                return Decimal(0, Error.SUBTRACT_OVERFLOW.ordinal, true)
+            }
+        }
+        var equalizedMantissaSum = equalizedThisMantissa - equalizedOtherMantissa
+        val (roundedMantissa, roundedDecimals) = roundWithMode(
+            equalizedMantissaSum,
+            equalizedDecimals,
+            autoDecimalPlaces,
+            autoRoundingMode
+        )
+        return Decimal(roundedMantissa, roundedDecimals, true)
     }
     public operator fun minus(other: Double) : Decimal = minus(other.toDecimal())
     public operator fun minus(other: Float) : Decimal = minus(other.toDecimal())
@@ -317,6 +334,7 @@ public open class Decimal : Number, Comparable<Decimal> {
         if (isDecimalError(this) or isDecimalError(other)) return this
         val (thisMantissa, thisDecimals) = unpack64()
         val (otherMantissa, otherDecimals) = other.unpack64()
+        println("Multiplication: this: $thisMantissa other: $otherMantissa, product: ${thisMantissa * otherMantissa}")
 
         val resultMantissa = thisMantissa * otherMantissa
         val resultDecimals = thisDecimals + otherDecimals
