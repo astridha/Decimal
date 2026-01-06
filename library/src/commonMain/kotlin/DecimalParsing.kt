@@ -11,7 +11,7 @@ private fun IsMantissaStringTooLong(mantissaString: String): Boolean {
         return true
     }
     if ((mantissaLength == Decimal.MAX_LONG_SIGNIFICANTS)
-        and (mantissaString.compareTo(Decimal.MAX_LONG_VALUE_STRING) > 0)) {
+        and (mantissaString.compareTo(Decimal.MAX_LONG_VALUESTRING) > 0)) {
         return true
     }
     return false
@@ -25,7 +25,7 @@ private fun NumMantissaStringDisposableDecimalPlaces(mantissaString: String, dec
         return min(mantissaLength - MAX_LONG_SIGNIFICANTS, decimals)
     }
     if ((mantissaLength == Decimal.MAX_LONG_SIGNIFICANTS)
-        and (mantissaString.compareTo(Decimal.MAX_LONG_VALUE_STRING) > 0)) {
+        and (mantissaString.compareTo(Decimal.MAX_LONG_VALUESTRING) > 0)) {
         return min(mantissaLength - (MAX_LONG_SIGNIFICANTS+1), decimals)
     }
     return 0
@@ -36,12 +36,13 @@ private fun IsMantissaStringWillOverflow(mantissaString: String, decimals: Int, 
     val mantissaLength = mantissaString.length
     val preCommaLength = mantissaLength - decimals
     val postCommaLength = min(decimals, desiredDecimals)
-
-    if ((preCommaLength + postCommaLength) > Decimal.MAX_DECIMAL_SIGNIFICANTS) {
+    val significantLength =  preCommaLength + postCommaLength
+    val significantString = mantissaString.take(significantLength)
+    if (significantLength > Decimal.MAX_DECIMAL_SIGNIFICANTS) {
         return true
     }
-    if (((preCommaLength + postCommaLength) == Decimal.MAX_DECIMAL_SIGNIFICANTS)
-        and (mantissaString.compareTo(Decimal.MAX_DECIMAL_VALUE_STRING) > 0)) {
+    if ((significantLength == Decimal.MAX_DECIMAL_SIGNIFICANTS)
+        and (significantString.compareTo(Decimal.MAX_DECIMAL_MANTISSASTRING) > 0)) {
         return true
     }
     return false
@@ -59,8 +60,8 @@ internal fun mkDecimalParseOrNull (rawNumberString: String, desiredDecimalPlaces
 
     if (match == null) {
         if (orNull) return null
-        if (Decimal.getThrowOnErrors()) throw NumberFormatException("INVALID DECIMAL FORMAT: \"$rawNumberString\"")
-        return Pair(0, Decimal.ArithmeticErrors.NOT_A_NUMBER.ordinal)
+        if (Decimal.getThrowOnErrors()) throw NumberFormatException("${Decimal.Error.NOT_A_NUMBER}: \"$rawNumberString\" is no number")
+        return Pair(0, Decimal.Error.NOT_A_NUMBER.ordinal)
     }
 
     println("\nNumberString: \"$cleanedNumberString\"")
@@ -79,8 +80,8 @@ internal fun mkDecimalParseOrNull (rawNumberString: String, desiredDecimalPlaces
     // detect whether mantissaString including desiredDecimals cannot fit
     if (IsMantissaStringWillOverflow(mantissaString, decimalPlaces, desiredDecimalPlaces)) {
         println("mantissa $mantissaString will overflow")
-        if (Decimal.shallThrowOnError) throw ArithmeticException("Decimal Parse Overflow with \"$rawNumberString\"")
-        return Pair(0, Decimal.ArithmeticErrors.PARSING_OVERFLOW.ordinal)
+        if (Decimal.shallThrowOnError) throw ArithmeticException("${Decimal.Error.PARSING_OVERFLOW}: \"$rawNumberString\" cannot fit into a Decimal")
+        return Pair(0, Decimal.Error.PARSING_OVERFLOW.ordinal)
     }
 
     // if necessary, truncate to Long (truncating only decimal digits) and condense again
@@ -100,8 +101,8 @@ internal fun mkDecimalParseOrNull (rawNumberString: String, desiredDecimalPlaces
     if (IsMantissaStringTooLong(mantissaString)) {
         println("I give up. \"$mantissaString\" still too long.")
         if (orNull) return null
-        if (Decimal.getThrowOnErrors()) throw ArithmeticException("DECIMAL OVERFLOW cannot fit: \"$rawNumberString\"")
-        return Pair(0, Decimal.ArithmeticErrors.PARSING_OVERFLOW.ordinal)
+        if (Decimal.getThrowOnErrors()) throw ArithmeticException("{$Decimal.Error.PARSING_OVERFLOW}: \"$rawNumberString\" cannot fit into a Decimal")
+        return Pair(0, Decimal.Error.PARSING_OVERFLOW.ordinal)
         //return Pair(123456123L, 3)
     }
 

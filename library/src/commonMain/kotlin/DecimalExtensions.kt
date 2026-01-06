@@ -3,11 +3,13 @@ package io.github.astridha.decimal
 
 /*********  Math-like implementations *************/
 
-public fun abs(d: Decimal) : Decimal = d.abs()
 public fun round(d: Decimal) : Decimal = d.round()
 public fun ceil(d: Decimal) : Decimal = d.ceil()
 public fun floor(d: Decimal) : Decimal = d.floor()
 public fun truncate(d: Decimal) : Decimal = d.truncate()
+public fun abs(d: Decimal) : Decimal = d.abs()
+public fun inc(d: Decimal) : Decimal = d.inc()
+public fun dec(d: Decimal) : Decimal = d.dec()
 public fun max(a: Decimal, b:Decimal) : Decimal = if (a > b) a; else b
 public fun min(a: Decimal, b:Decimal) : Decimal = if (a < b) a; else b
 public fun sign(d: Decimal) : Decimal = d.sign

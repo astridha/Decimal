@@ -2,6 +2,7 @@ package io.github.astridha.decimal
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 
 class ArithmeticAssignOperatorsTest {
@@ -17,6 +18,28 @@ class ArithmeticAssignOperatorsTest {
             d1.toRawDecimalString()+" "+d2.toRawDecimalString(),
             "operator = (d2 shouldn't change when d1 is changed)"
         )
+
+        assertEquals(  // this is not Overflow!
+            "${Decimal.MAX_VALUE}",
+            (Decimal.MAX_VALUE.Dc).toRawDecimalString(),
+            "plain (${Decimal.MAX_VALUE.Dc})"
+        )
+        assertFailsWith(  // this is Overflow and must trow!
+            ArithmeticException::class,
+            "plain (${(Decimal.MAX_VALUE+1)}.Dc)",
+            {(Decimal.MAX_VALUE+1).Dc}
+        )
+        assertEquals(  // this is not Overflow!
+            "${Decimal.MAX_VALUE}",
+            "${Decimal.MAX_VALUE}".Dc.toRawDecimalString(),
+            """"plain (${"${Decimal.MAX_VALUE}".Dc})"""
+        )
+        assertFailsWith(  // this is Overflow and must trow!
+            ArithmeticException::class,
+            "plain (${(Decimal.MAX_VALUE+1)}.Dc)",
+            {"${(Decimal.MAX_VALUE+1)}".Dc}
+        )
+
     }
 
     @Test fun opPlusAssignTests() {

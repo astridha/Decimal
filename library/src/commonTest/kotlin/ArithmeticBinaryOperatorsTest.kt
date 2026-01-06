@@ -43,17 +43,11 @@ class ArithmeticBinaryOperatorsTest {
             1 + 0.03.Dc,
             "plain (1 + 0.03.Dc)"
         )
-        /*
-        assertEquals(  // this is (Int plus Decimal)!
-            1.03.Dc,
-            999999999999999999L.Dc + 999999999999999999L.Dc,
-            "plain (999999999999999999.Dc + 999999999999999999.Dc)"
-        )
-        */
+
         assertFailsWith(
             ArithmeticException::class,
-            "plain (999999999999999999.Dc + 999999999999999999.Dc)",
-            {999999999999999999L.Dc + 999999999999999999L.Dc}
+            "plain (999999999999999998.Dc + 999999999999999999.Dc)",
+            {999999999999999998L.Dc + 999999999999999999L.Dc}
         )
     }
 
