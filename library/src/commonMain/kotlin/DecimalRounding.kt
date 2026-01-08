@@ -46,8 +46,8 @@ internal fun roundWithMode(rawMantissa: Long, rawDecimals: Int, desiredDecimals:
 
     if (roundingMode == Decimal.RoundingMode.UNNECESSARY) {
         // should round, but rounding is forbidden!
-        if (Decimal.shallThrowOnError) throw ArithmeticException("${Decimal.Error.ROUNDING_FAILED}: Rounding necessary")
-        return Pair(0L, Decimal.Error.ROUNDING_FAILED.ordinal)
+        val errno = Decimal.generateErrorCode(Decimal.Error.ROUNDING_FAILED, "Rounding necessary but forbidden (RoundingMode.UNNECESSARY)")
+        return Pair(0L, errno)
     }
     println("\nold: mantissa:$currentMantissa, currentDecimals:$currentDecimals, desiredDecimals:$desiredDecimals, mode:$roundingMode")
     val wholeRoundingDistance: Int = currentDecimals - desiredDecimals
@@ -97,9 +97,9 @@ internal fun roundWithMode(rawMantissa: Long, rawDecimals: Int, desiredDecimals:
     }
     if (abs(newMantissa) > MAX_VALUE) {
         println("Ups!")
-        if (shallThrowOnError) throw ArithmeticException("${Error.NUMERIC_OVERFLOW}: \"Value won't fit into Decimal\"")
+        val errno = Decimal.generateErrorCode(Error.NUMERIC_OVERFLOW, "\"Value won't fit into Decimal\"")
         newMantissa = 0L
-        newDecimals = Error.NUMERIC_OVERFLOW.ordinal
+        newDecimals = errno
     }
 
     return Pair(newMantissa, if (newMantissa == 0L) 0; else newDecimals)

@@ -43,11 +43,16 @@ class ArithmeticBinaryOperatorsTest {
             1 + 0.03.Dc,
             "plain (1 + 0.03.Dc)"
         )
+        assertEquals(  // this is Overflow!
+            576460752303423488.Dc,
+            Decimal.MAX_VALUE + 1L.Dc,
+            "plain (${Decimal.MAX_VALUE} + 1L.Dc)"
+        )
 
         assertFailsWith(
             ArithmeticException::class,
-            "plain (999999999999999998.Dc + 999999999999999999.Dc)",
-            {999999999999999998L.Dc + 999999999999999999L.Dc}
+            "plain (${Decimal.MAX_VALUE} + 1L.Dc)",
+            {Decimal.MAX_VALUE + 1L.Dc}
         )
     }
 
