@@ -124,6 +124,24 @@ class ArithmeticBinaryOperatorsTest {
             "operator with (1999999999.2.Dc * (-99999999999.1).Dc)",
             {(1999999999.2.Dc * (-99999999999.1).Dc).toRawDecimalString()}
         )
+        /*
+        assertEquals(  // this is Overflow!
+            576460752303423487.Dc,
+            Decimal.MAX_VALUE * 1.1.Dc,
+            "plain (${Decimal.MAX_VALUE} * 1.1.Dc)"
+        )
+        assertEquals(  // this is Overflow!
+            576460752303423487.Dc,
+            (Decimal.MAX_VALUE+1) * 1.1.Dc,
+            "plain (${Decimal.MAX_VALUE} * 1.1.Dc)"
+        )
+         */
+
+        assertFailsWith(
+            ArithmeticException::class,
+            "plain (${Decimal.MAX_VALUE} * 1.1.Dc)",
+            {Decimal.MAX_VALUE * 1.1.Dc}
+        )
     }
 
     @Test fun opDivTests() {

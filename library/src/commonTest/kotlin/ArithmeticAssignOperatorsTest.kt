@@ -20,24 +20,24 @@ class ArithmeticAssignOperatorsTest {
         )
 
         assertEquals(  // this is not Overflow!
-            "${Decimal.MAX_VALUE}",
-            (Decimal.MAX_VALUE.Dc).toRawDecimalString(),
-            "plain (${Decimal.MAX_VALUE.Dc})"
+            "${Decimal.MAX_DECIMAL_LONG_VALUE}",
+            (Decimal.MAX_DECIMAL_LONG_VALUE.Dc).toRawDecimalString(),
+            "plain (${Decimal.MAX_DECIMAL_LONG_VALUE.Dc})"
         )
         assertFailsWith(  // this is Overflow and must trow!
             ArithmeticException::class,
-            "plain (${(Decimal.MAX_VALUE+1)}.Dc)",
-            {(Decimal.MAX_VALUE+1).Dc}
+            "plain (${(Decimal.MAX_DECIMAL_LONG_VALUE+1)}.Dc)",
+            {(Decimal.MAX_DECIMAL_LONG_VALUE+1).Dc}
         )
         assertEquals(  // this is not Overflow!
-            "${Decimal.MAX_VALUE}",
-            "${Decimal.MAX_VALUE}".Dc.toRawDecimalString(),
-            """"plain (${"${Decimal.MAX_VALUE}".Dc})"""
+            "${Decimal.MAX_DECIMAL_LONG_VALUE}",
+            "${Decimal.MAX_DECIMAL_LONG_VALUE}".Dc.toRawDecimalString(),
+            """"plain (${"${Decimal.MAX_DECIMAL_LONG_VALUE}".Dc})"""
         )
         assertFailsWith(  // this is Overflow and must trow!
             ArithmeticException::class,
-            "plain (${(Decimal.MAX_VALUE+1)}.Dc)",
-            {"${(Decimal.MAX_VALUE+1)}".Dc}
+            "plain (${(Decimal.MAX_DECIMAL_LONG_VALUE+1)}.Dc)",
+            {"${(Decimal.MAX_DECIMAL_LONG_VALUE+1)}".Dc}
         )
 
     }

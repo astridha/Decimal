@@ -64,7 +64,6 @@ internal fun mkDecimalParseOrNull (rawNumberString: String, desiredDecimalPlaces
     if (match == null) {
         if (orNull) return null
         val errno = generateErrorCode(Decimal.Error.NOT_A_NUMBER,"\"$rawNumberString\" is no number")
-        //if (Decimal.getThrowOnErrors()) throw NumberFormatException("${Decimal.Error.NOT_A_NUMBER}: \"$rawNumberString\" is no number")
         return Pair(0, errno)
     }
 
@@ -83,7 +82,6 @@ internal fun mkDecimalParseOrNull (rawNumberString: String, desiredDecimalPlaces
     if (IsMantissaStringWillOverflow(mantissaString, decimalPlaces, desiredDecimalPlaces)) {
         println("mantissa $mantissaString will overflow")
         val errno = generateErrorCode(Decimal.Error.PARSING_OVERFLOW,"\"$rawNumberString\" cannot fit into a Decimal")
-       // if (Decimal.shallThrowOnError) throw ArithmeticException("${Decimal.Error.PARSING_OVERFLOW}: \"$rawNumberString\" cannot fit into a Decimal")
        return Pair(0, errno)
     }
 
@@ -105,9 +103,7 @@ internal fun mkDecimalParseOrNull (rawNumberString: String, desiredDecimalPlaces
         println("I give up. \"$mantissaString\" still too long.")
         if (orNull) return null
         val errno = generateErrorCode(Decimal.Error.PARSING_OVERFLOW,"\"$rawNumberString\" cannot fit into a Decimal")
-        // if (Decimal.getThrowOnErrors()) throw ArithmeticException("{$Decimal.Error.PARSING_OVERFLOW}: \"$rawNumberString\" cannot fit into a Decimal")
-        return Pair(0, errno)
-        //return Pair(123456123L, 3)
+         return Pair(0, errno)
     }
 
     if (mantissaString in listOf("+", "- ", "")) mantissaString += "0"
