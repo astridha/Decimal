@@ -247,27 +247,27 @@ class DecimalCoreTest {
     @Test fun toPlainStringTests() {
         assertEquals(
             "123",
-            Decimal(123L, 0, true).toString(),
+            Decimal(123L, 0).toString(),
             "toPlainString: +mantissa 123L, 0 places 0"
         )
         assertEquals(
             "1.24",
-            Decimal(124L, 2, true).toString(),
+            Decimal(124L, 2).toString(),
             "toPlainString: +mantissa, 124L +places 2"
         )
         assertEquals(
             "12500",
-            Decimal(125L, -2, true).toString(),
+            Decimal(125L, -2).toString(),
             "toPlainString: +mantissa 125L, -places -2"
         )
         assertEquals(
             "-125",
-            Decimal(-125L, 0, true).toString(),
+            Decimal(-125L, 0).toString(),
             "toPlainString: -mantissa -125L, 0 places"
         )
         assertEquals(
             "-1.25",
-            Decimal(-125L, +2, true).toString(),
+            Decimal(-125L, +2).toString(),
             "toPlainString: -mantissa -125L, +places +2"
         )
         assertEquals(
@@ -286,12 +286,12 @@ class DecimalCoreTest {
         )
         assertEquals(
             "1.24E-8",
-            Decimal(124L, 10,true).toScientificString(),
+            Decimal(124L, 10).toScientificString(),
             "toScientific: +mantissa, +places"
         )
         assertEquals(
             "1.25E4",
-            Decimal(125L, -2, true).toScientificString(),
+            Decimal(125L, -2).toScientificString(),
             "toScientific: +mantissa 125L, -places -2"
         )
         assertEquals(
@@ -301,12 +301,12 @@ class DecimalCoreTest {
         )
         assertEquals(
             "-1.25E-8",
-            Decimal(-125L, 10, true).toScientificString(),
+            Decimal(-125L, 10).toScientificString(),
             "toScientific: -mantissa, +places, '-1.25E-8'"
         )
         assertEquals(
             "-1.25E12",
-            Decimal(-125L, -10, true).toScientificString(),
+            Decimal(-125L, -10).toScientificString(),
             "toScientific: -mantissa, -places, '1.25E12'"
         )
 

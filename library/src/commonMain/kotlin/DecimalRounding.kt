@@ -1,7 +1,7 @@
 package io.github.astridha.decimal
 
 import io.github.astridha.decimal.Decimal.Error
-import io.github.astridha.decimal.Decimal.Companion.MAX_DECIMAL_LONG_VALUE
+import io.github.astridha.decimal.Decimal.Companion.MAX_MANTISSA_VALUE
 import kotlin.math.abs
 
 internal fun getPower10(exponent: Int) : Long { // only for between 0 and 16!!!
@@ -95,7 +95,7 @@ internal fun roundWithMode(rawMantissa: Long, rawDecimals: Int, desiredDecimals:
         newMantissa /= 10
         newDecimals--
     }
-    if (abs(newMantissa) > MAX_DECIMAL_LONG_VALUE) {
+    if (abs(newMantissa) > MAX_MANTISSA_VALUE) {
 //        println("Ups!")
         val errno = Decimal.generateErrorCode(Error.NUMERIC_OVERFLOW, "\"Rounded Value won't fit into Decimal\"")
         newMantissa = 0L

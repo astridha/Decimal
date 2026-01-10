@@ -76,12 +76,12 @@ public open class Decimal : Number, Comparable<Decimal> {
         decimal64 = other.decimal64
     }
 
-    internal constructor (mantissa: Long, decimalPlaces: Int, omitNormalize: Boolean = true) {
+    internal constructor (mantissa: Long, decimalPlaces: Int) {
         decimal64 = pack64(mantissa, decimalPlaces)
     }
 
     public constructor (mantissa:Long) {
-        if (abs(mantissa) > MAX_DECIMAL_LONG_VALUE) {
+        if (abs(mantissa) > MAX_MANTISSA_VALUE) {
             // a single value will overflow
             val errorCode = generateErrorCode(Error.NUMERIC_OVERFLOW, "$mantissa cannot fit into a Decimal")
              decimal64 = pack64(0,errorCode)
@@ -124,8 +124,8 @@ public open class Decimal : Number, Comparable<Decimal> {
                 decimals--
             }
 
-            if ((abs(mantissa) > MAX_DECIMAL_LONG_VALUE) or (decimals > MAX_DECIMAL_PLACES)) {
-                val errno = generateErrorCode(Decimal.Error.OTHER_OVERFLOW,"mantissa $mantissa with $decimals decimals")
+            if ((abs(mantissa) > MAX_MANTISSA_VALUE) or (decimals > MAX_DECIMAL_PLACES)) {
+                val errno = generateErrorCode(Error.OTHER_OVERFLOW,"mantissa $mantissa with $decimals decimals")
                 mantissa = 0L
                 decimals = errno
             }
@@ -142,25 +142,25 @@ public open class Decimal : Number, Comparable<Decimal> {
     public fun ceil() : Decimal  {
         val (mantissa, decimals) = unpack64()
         val (newMantissa, newDecimals) = roundWithMode(mantissa, decimals, 0, RoundingMode.CEILING)
-        return Decimal(newMantissa, if (newMantissa == 0L)  0 else newDecimals,true)
+        return Decimal(newMantissa, if (newMantissa == 0L)  0 else newDecimals)
     }
 
     public fun floor() : Decimal  {
         val (mantissa, decimals) = unpack64()
         val (newMantissa, newDecimals) = roundWithMode(mantissa, decimals, 0, RoundingMode.FLOOR)
-        return Decimal(newMantissa, if (newMantissa == 0L)  0 else newDecimals,true)
+        return Decimal(newMantissa, if (newMantissa == 0L)  0 else newDecimals)
     }
 
     public fun truncate() : Decimal  {
         val (mantissa, decimals) = unpack64()
         val (newMantissa, newDecimals) = roundWithMode(mantissa, decimals, 0, RoundingMode.DOWN)
-        return Decimal(newMantissa, if (newMantissa == 0L)  0 else newDecimals,true)
+        return Decimal(newMantissa, if (newMantissa == 0L)  0 else newDecimals)
     }
 
     public fun round() : Decimal  {
         val (mantissa, decimals) = unpack64()
         val (newMantissa, newDecimals) = roundWithMode(mantissa, decimals, 0, RoundingMode.HALF_EVEN)
-        return Decimal(newMantissa, if (newMantissa == 0L)  0 else newDecimals,true)
+        return Decimal(newMantissa, if (newMantissa == 0L)  0 else newDecimals)
     }
 
 
@@ -168,7 +168,7 @@ public open class Decimal : Number, Comparable<Decimal> {
         val (mantissa, decimals) = unpack64()
         val roundingDecimals = min(MAX_DECIMAL_PLACES, desiredDecimals)
         val (newMantissa, newDecimals) = roundWithMode(mantissa, decimals, roundingDecimals, rounding)
-        return Decimal(newMantissa, if (newMantissa == 0L)  0 else newDecimals,true)
+        return Decimal(newMantissa, if (newMantissa == 0L)  0 else newDecimals)
     }
 
     /*******************  Operator Overloads  ******************/
@@ -176,12 +176,13 @@ public open class Decimal : Number, Comparable<Decimal> {
     /***  unary operators ***/
 
     /*** operator unaryPlus (+) , unaryMinus (-) and not() (!) ***/
-    public operator fun unaryPlus() : Decimal = this
+
+    public operator fun unaryPlus() : Decimal = this // or: clone()?
 
     public operator fun unaryMinus() : Decimal {
         var (mantissa, decimals) = unpack64()
         mantissa = (0L-mantissa)
-        return Decimal(mantissa, decimals, true)
+        return Decimal(mantissa, decimals)
     }
 
     public operator fun not() : Boolean = (decimal64 == 0L)
@@ -190,14 +191,32 @@ public open class Decimal : Number, Comparable<Decimal> {
     /***** operator unaryIncrement (++) , unaryDecrement (--)  *****/
 
     public operator fun inc() : Decimal {
+        if (isError()) return clone()
         val (mantissa, decimals) = unpack64()
         val decimalstep = getPower10(decimals)
-        return Decimal(mantissa+decimalstep, decimals, true)
+        if (mantissa.isPositive()) {
+            // increment might overflow!
+            val space: Long = (MAX_MANTISSA_VALUE - mantissa)
+            if (space < decimalstep) {
+                return generateErrorDecimal(Error.INC_OVERFLOW, "$this + ${Decimal(decimalstep)} result does not fit into Decimal")
+            }
+        }
+        return Decimal(mantissa+decimalstep, decimals)
     }
+
     public operator fun dec() : Decimal {
+        if (isError()) return clone()
         val (mantissa, decimals) = unpack64()
         val decimalstep = getPower10(decimals)
-        return Decimal(mantissa-decimalstep, decimals, true)
+        if (mantissa.isNegative()) {
+            // decrement might overflow!
+            val space: Long = (MAX_MANTISSA_VALUE - abs(mantissa))
+            if (space < decimalstep) {
+                return generateErrorDecimal(Error.DEC_OVERFLOW, "$this - ${Decimal(decimalstep)} result does not fit into Decimal")
+            }
+        }
+
+        return Decimal(mantissa-decimalstep, decimals)
     }
 
     /*********************  Arithmetic operator overloads  **************************/
@@ -229,21 +248,21 @@ public open class Decimal : Number, Comparable<Decimal> {
     /***** operator plus (+) *****/
 
     public operator fun plus(other: Decimal) : Decimal {
-        if (isError(this) or isError(other)) return this
+        if (isError(this) or isError(other)) return clone()
         val (thisMantissa, thisDecimals) = unpack64()
         val (otherMantissa, otherDecimals) = other.unpack64()
         val (equalizedThisMantissa,equalizedOtherMantissa, equalizedDecimals) = equalizeDecimals(thisMantissa, thisDecimals, otherMantissa, otherDecimals)
         println("Addition: this: $equalizedThisMantissa other: $equalizedOtherMantissa, sum: ${equalizedThisMantissa + equalizedOtherMantissa}")
         if (equalizedThisMantissa.isNegative() == equalizedOtherMantissa.isNegative() ) {
             // addition might overflow!
-            val space: Long = MAX_DECIMAL_LONG_VALUE - abs(equalizedThisMantissa)
+            val space: Long = MAX_MANTISSA_VALUE - abs(equalizedThisMantissa)
             if (space <= abs(equalizedOtherMantissa)) {
                 return generateErrorDecimal(Error.ADD_OVERFLOW, "$this + $other result does not fit into Decimal")
              }
         }
         val equalizedMantissaSum = equalizedThisMantissa + equalizedOtherMantissa
         val (roundedMantissa, roundedDecimals) = roundWithMode(equalizedMantissaSum, equalizedDecimals,autoDecimalPlaces, autoRoundingMode)
-        return Decimal(roundedMantissa, roundedDecimals, true)
+        return Decimal(roundedMantissa, roundedDecimals)
     }
     public operator fun plus(other: Double) : Decimal = plus(other.toDecimal())
     public operator fun plus(other: Float) : Decimal = plus(other.toDecimal())
@@ -260,7 +279,7 @@ public open class Decimal : Number, Comparable<Decimal> {
     /***** operator minus (-) *****/
 
     public operator fun minus(other: Decimal) : Decimal {
-        if (isError(this) or isError(other)) return this
+        if (isError(this) or isError(other)) return clone()
         val (thisMantissa, thisDecimals) = unpack64()
         val (otherMantissa, otherDecimals) = other.unpack64()
         val (equalizedThisMantissa, equalizedOtherMantissa, equalizedDecimals) = equalizeDecimals(
@@ -272,19 +291,19 @@ public open class Decimal : Number, Comparable<Decimal> {
         println("Subtraction: this: $equalizedThisMantissa other: $equalizedOtherMantissa, diff: ${equalizedThisMantissa - equalizedOtherMantissa}")
         if (equalizedThisMantissa.isNegative() != equalizedOtherMantissa.isNegative()) {
             // subtraction is addition and might overflow!
-            var space: Long = MAX_DECIMAL_LONG_VALUE - abs(equalizedThisMantissa)
+            val space: Long = MAX_MANTISSA_VALUE - abs(equalizedThisMantissa)
             if (space <= abs(equalizedOtherMantissa)) {
                 return generateErrorDecimal(Error.SUBTRACT_OVERFLOW, "$this - $other result does not fit into Decimal")
             }
         }
-        var equalizedMantissaSum = equalizedThisMantissa - equalizedOtherMantissa
+        val equalizedMantissaSum = equalizedThisMantissa - equalizedOtherMantissa
         val (roundedMantissa, roundedDecimals) = roundWithMode(
             equalizedMantissaSum,
             equalizedDecimals,
             autoDecimalPlaces,
             autoRoundingMode
         )
-        return Decimal(roundedMantissa, roundedDecimals, true)
+        return Decimal(roundedMantissa, roundedDecimals)
     }
     public operator fun minus(other: Double) : Decimal = minus(other.toDecimal())
     public operator fun minus(other: Float) : Decimal = minus(other.toDecimal())
@@ -301,43 +320,39 @@ public open class Decimal : Number, Comparable<Decimal> {
     /***** operator times (*) *****/
 
     private fun willOverflowLong(a: Long, b: Long): Boolean{
-        if (a > 0 && b > 0 && a > Long.MAX_VALUE / b) return true;
-        if (a > 0 && b < 0 && b < Long.MIN_VALUE / a) return true;
-        if (a < 0 && b > 0 && a < Long.MIN_VALUE / b) return true;
-        return a < 0 && b < 0 && a < Long.MAX_VALUE / b;
-
+        if ((a > 0) and (b > 0) and (a > (Long.MAX_VALUE / b))) return true
+        if ((a > 0) and (b < 0) and (b < (Long.MIN_VALUE / a))) return true
+        if ((a < 0) and (b > 0) and (a < (Long.MIN_VALUE / b))) return true
+        return( (a < 0) and (b < 0) and (a < (Long.MAX_VALUE / b)))
     }
 
     private fun willOverflowMantissa(mantissa: Long, decimals: Int): Boolean {
         // this assumes later rounding to autoDecimalPlaces!
         // any tolerated overflow must be guaranteed to be removed later when being rounded away
-        if ((abs(mantissa) > (MAX_DECIMAL_LONG_VALUE*10)) and (decimals <= (autoDecimalPlaces-2))) return true
-        if ((abs(mantissa) > MAX_DECIMAL_LONG_VALUE ) and (decimals <= (autoDecimalPlaces-1))) return true
+        if ((abs(mantissa) > (MAX_MANTISSA_VALUE*10)) and (decimals <= (autoDecimalPlaces-2))) return true
+        if ((abs(mantissa) > MAX_MANTISSA_VALUE ) and (decimals <= (autoDecimalPlaces-1))) return true
         return false
     }
 
     public operator fun times(other: Decimal) : Decimal {
-        if (isError(this) or isError(other)) return this
+        if (isError(this) or isError(other)) return clone()
         val (thisMantissa, thisDecimals) = unpack64()
         val (otherMantissa, otherDecimals) = other.unpack64()
         println("Multiplication: this: $thisMantissa other: $otherMantissa, product: ${thisMantissa * otherMantissa}")
 
         // 0, no rounding needed
-        if ((thisMantissa == 0L) or (otherMantissa == 0L)) return Decimal(0,0,true)
+        if ((thisMantissa == 0L) or (otherMantissa == 0L)) return Decimal(0,0)
 
        if (willOverflowLong(thisMantissa, otherMantissa)) {
            return generateErrorDecimal(Error.MULTIPLY_OVERFLOW, "$this * $other result does not fit into DECIMAL")
         }
         val resultMantissa = thisMantissa * otherMantissa
-        if (thisMantissa != (resultMantissa / otherMantissa)) {
-            return generateErrorDecimal(Error.MULTIPLY_OVERFLOW, "$this * $other result does not fit into DECIMAL")
-        }
         val resultDecimals = thisDecimals + otherDecimals
         if (willOverflowMantissa(resultMantissa, resultDecimals)) {
             return generateErrorDecimal(Error.MULTIPLY_OVERFLOW, "$this * $other = ${toRawString(resultMantissa, resultDecimals)} result does not fit into DECIMAL")
         }
         val (roundedMantissa, roundedDecimals) = roundWithMode(resultMantissa, resultDecimals,autoDecimalPlaces, autoRoundingMode)
-        return Decimal(roundedMantissa, roundedDecimals, true)
+        return Decimal(roundedMantissa, roundedDecimals)
     }
     public operator fun times(other: Double) : Decimal = times(other.toDecimal())
     public operator fun times(other: Float) : Decimal = times(other.toDecimal())
@@ -354,7 +369,7 @@ public open class Decimal : Number, Comparable<Decimal> {
     /***** operator div (/) *****/
 
     public operator fun div(other: Decimal) : Decimal {
-        if (isError(this) or isError(other)) return this
+        if (isError(this) or isError(other)) return clone()
         var (thisMantissa, thisDecimals) = unpack64()
         val (otherMantissa, otherDecimals) = other.unpack64()
         println("Division: this: $thisMantissa other: $otherMantissa, result: ${if (otherMantissa==0L) "Error" else (thisMantissa / otherMantissa)}")
@@ -370,12 +385,12 @@ public open class Decimal : Number, Comparable<Decimal> {
             }
             thisMantissa *=10; thisDecimals++
         }
-        var resultMantissa = (thisMantissa / otherMantissa)
-        var resultDecimals = (thisDecimals - otherDecimals)
+        val resultMantissa = (thisMantissa / otherMantissa)
+        val resultDecimals = (thisDecimals - otherDecimals)
 
         // rounding
         val (roundedMantissa, roundedDecimals) = roundWithMode(resultMantissa, resultDecimals, autoDecimalPlaces, autoRoundingMode)
-        return Decimal(roundedMantissa, roundedDecimals, true)
+        return Decimal(roundedMantissa, roundedDecimals)
     }
     public operator fun div(other: Double) : Decimal = div(other.toDecimal())
     public operator fun div(other: Float) : Decimal = div(other.toDecimal())
@@ -394,9 +409,7 @@ public open class Decimal : Number, Comparable<Decimal> {
     private fun integerdivided(other: Decimal) : Decimal {
         var (thisMantissa, thisDecimals) = unpack64()
         var (otherMantissa, otherDecimals) = other.unpack64()
-        val thisM = thisMantissa
-        val otherM = otherMantissa
-         if (otherMantissa == 0L) {
+        if (otherMantissa == 0L) {
             return generateErrorDecimal(Error.DIVISION_BY_0, "$this is divided by 0")
         }
         // preserve from running endlessly if thism cannot reach thatm!
@@ -407,14 +420,14 @@ public open class Decimal : Number, Comparable<Decimal> {
             //if ((thism * (thism / thatm)) == thatm) break
             thisMantissa *=10; thisDecimals++
         }
-        var resultMantissa = (thisMantissa / otherMantissa)
-        var resultDecimals = (thisDecimals - otherDecimals)
+        val resultMantissa = (thisMantissa / otherMantissa)
+        val resultDecimals = (thisDecimals - otherDecimals)
         // rounding???
-        return Decimal(resultMantissa, resultDecimals, false)
+        return Decimal(resultMantissa, resultDecimals)
     }
 
     public operator fun rem(other:Decimal) : Decimal {
-        if (isError(this) or isError(other)) return this
+        if (isError(this) or isError(other)) return clone()
         val divisionresult = (this.integerdivided(other))
         println("Remainder: this: $this, other: $other, result: ${(this - (other * divisionresult))}")
         // rounding???
@@ -438,7 +451,7 @@ public open class Decimal : Number, Comparable<Decimal> {
 
     public fun abs() : Decimal  {
         val (mantissa, decimals) = unpack64()
-        return Decimal(abs(mantissa), decimals, true)
+        return Decimal(abs(mantissa), decimals)
     }
     public val absoluteValue: Decimal
         get() {
@@ -502,6 +515,7 @@ public open class Decimal : Number, Comparable<Decimal> {
 
 
      public  override fun toString() : String {
+        if (isError()) return getError().toString()
         val (mantissa, decimals) = unpack64()
         var decimalstring = toRawString(mantissa, decimals)
 
@@ -511,10 +525,12 @@ public open class Decimal : Number, Comparable<Decimal> {
             if (decimals <= 0) decimalstring += '.'
             if (missingplaces > 0) decimalstring += ("0".repeat(missingplaces))
         }
-        return decimalstring    }
+        return decimalstring
+     }
 
 
     public fun toScientificString() : String {
+        if (isError()) return getError().toString()
         val (mantissa, decimals) = unpack64()
         if (mantissa == 0L) return "0E0"
         var decimalString: String
@@ -533,6 +549,7 @@ public open class Decimal : Number, Comparable<Decimal> {
     }
 
     public fun toFormattedString(thousands: Char = ',', decim: Char = '.', minDecimalPlaces: Int = autoDeprecatedMinDecimals) : String {
+        if (isError()) return getError().toString()
         // inserts thousands delimiters between groups of 3 digits dynamically, and adds minimum of decimal places
         // i.e., needs no formatting string and supports no overall minimum width
         require (thousands != decim) {"Thousands separator and decimal separator must not be identical"}
@@ -575,7 +592,7 @@ public open class Decimal : Number, Comparable<Decimal> {
 
     public fun clone(): Decimal {
         val (mantissa, decimals) = unpack64()
-        return Decimal(mantissa, decimals, true)
+        return Decimal(mantissa, decimals)
     }
     public fun copy(): Decimal = this.clone() // which one is better?
 
@@ -621,13 +638,13 @@ public open class Decimal : Number, Comparable<Decimal> {
             val decimalPair: Pair<Long, Int>? = mkDecimalParseOrNull(numberString, autoDecimalPlaces, true)
             return if (decimalPair != null) {
                 val (roundedMantissa, roundedDecimals) = roundWithMode(decimalPair.first, decimalPair.second, min(autoDecimalPlaces, MAX_DECIMAL_PLACES), autoRoundingMode)
-                Decimal(roundedMantissa, roundedDecimals, true)
+                Decimal(roundedMantissa, roundedDecimals)
             } else {
                 null
             }
         }
 
-        public const val MAX_DECIMAL_LONG_VALUE: Long = +576460752303423487L
+        public const val MAX_MANTISSA_VALUE: Long = +576460752303423487L
         public const val MIN_DECIMAL_LONG_VALUE: Long = -576460752303423487L
         //public const val NOT_A_NUMBER: Long = -576460752303423488L
 
@@ -637,12 +654,12 @@ public open class Decimal : Number, Comparable<Decimal> {
         public const val MAX_LONG_SIGNIFICANTS: Int = 19
         public const val MAX_LONG_VALUESTRING: String = "9223372036854775807"
 
-        public val ONE: Decimal = Decimal(1,0,true)
+        public val ONE: Decimal = Decimal(1,0)
 
-        public val NaN: Decimal = Decimal(0, Error.NOT_A_NUMBER.ordinal, true)
+        public val NaN: Decimal = Decimal(0, Error.NOT_A_NUMBER.ordinal)
 
-        public val MAX_VALUE: Decimal = Decimal(MAX_DECIMAL_LONG_VALUE,0,true)
-        public val MIN_VALUE: Decimal = Decimal(MIN_DECIMAL_LONG_VALUE,0,true)
+        public val MAX_VALUE: Decimal = Decimal(MAX_MANTISSA_VALUE,0)
+        public val MIN_VALUE: Decimal = Decimal(MIN_DECIMAL_LONG_VALUE,0)
 
         // static (common) variables and functions
 
@@ -705,19 +722,18 @@ public open class Decimal : Number, Comparable<Decimal> {
             return Error.NO_ERROR
         }
 
-
         // better inline for a more clear stack trace?
         @Suppress("NOTHING_TO_INLINE")
         internal inline fun generateErrorCode(error: Error, info: String): Int {
             val errortext = "$error: $info"
-            if (shallThrowOnError) throw if (error == Error.NOT_A_NUMBER) NumberFormatException("$errortext") else ArithmeticException("$errortext")
+            if (shallThrowOnError) throw if (error == Error.NOT_A_NUMBER) NumberFormatException(errortext) else ArithmeticException(errortext)
             return error.ordinal
         }
 
         // better inline for a more clear stack trace?
         @Suppress("NOTHING_TO_INLINE")
         internal inline fun generateErrorDecimal(error: Error, info: String): Decimal {
-            var errorCode = generateErrorCode(error, info)
+            val errorCode = generateErrorCode(error, info)
             return Decimal(0, errorCode)
         }
 
