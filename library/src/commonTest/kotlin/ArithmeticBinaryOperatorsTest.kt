@@ -10,17 +10,17 @@ class ArithmeticBinaryOperatorsTest {
     @Test fun opPlusTests() {
         assertEquals(
             "15",
-            (10.Dc + 5.Dc).toRawDecimalString(),
+            (10.Dc + 5.Dc).toString(),
             "operator (10.Dc + 5.Dc)"
         )
         assertEquals(
             "15.7",
-            (10.4.Dc + 5.3.Dc).toRawDecimalString(),
+            (10.4.Dc + 5.3.Dc).toString(),
             "operator (10.4.Dc + 5.3.Dc)"
         )
         assertEquals(
             "15.78",
-            (10.4.Dc + 5.38.Dc).toRawDecimalString(),
+            (10.4.Dc + 5.38.Dc).toString(),
             "operator (10.4.Dc + 5.38.Dc)"
         )
         assertEquals(
@@ -30,12 +30,12 @@ class ArithmeticBinaryOperatorsTest {
         )
         assertEquals(
             "0.03",
-            (0.01.Dc + 0.02.Dc).toRawDecimalString(),
+            (0.01.Dc + 0.02.Dc).toString(),
             "operator (0.01Dc + 0.02.Dc)"
         )
         assertEquals(  // this is (Int plus Decimal)!
             "1.03",
-            (1 + 0.03.Dc).toRawDecimalString(),
+            (1 + 0.03.Dc).toString(),
             "operator (1 + 0.03.Dc)"
         )
         assertEquals(  // this is (Int plus Decimal)!
@@ -60,22 +60,22 @@ class ArithmeticBinaryOperatorsTest {
     @Test fun opMinusTests() {
         assertEquals(
             "6",
-            (11.Dc - 5.Dc).toRawDecimalString(),
+            (11.Dc - 5.Dc).toString(),
             "operator (11.Dc - 5.Dc): 6"
         )
         assertEquals(
             "5.1",
-            (10.4.Dc - 5.3.Dc).toRawDecimalString(),
+            (10.4.Dc - 5.3.Dc).toString(),
             "operator (10.4.Dc - 5.3.Dc)"
         )
         assertEquals(
             "5.02",
-            (10.4.Dc - 5.38.Dc).toRawDecimalString(),
+            (10.4.Dc - 5.38.Dc).toString(),
             "operator (10.4.Dc - 5.38.Dc)"
         )
         assertEquals(
             "-5.02",
-            (5.38.Dc - 10.4.Dc).toRawDecimalString(),
+            (5.38.Dc - 10.4.Dc).toString(),
             "operator (5.38.Dc - 10.4.Dc)"
         )
     }
@@ -83,33 +83,33 @@ class ArithmeticBinaryOperatorsTest {
     @Test fun opTimesTests() {
         assertEquals(
             "12",
-            (3.Dc * 4.Dc).toRawDecimalString(),
+            (3.Dc * 4.Dc).toString(),
             "operator (3.Dc * 4.Dc)"
         )
         assertEquals(
             "14",
-            (3.5.Dc * 4.Dc).toRawDecimalString(),
+            (3.5.Dc * 4.Dc).toString(),
             "operator (3.5.Dc * 4.Dc)"
         )
         assertEquals(
             "2.26",
-            (0.5.Dc * 4.52.Dc).toRawDecimalString(),
+            (0.5.Dc * 4.52.Dc).toString(),
             "operator (0,5.Dc * 4.52.Dc)"
         )
         assertEquals(
             "2.6",
-            (1.3.Dc * 2).toRawDecimalString(),
+            (1.3.Dc * 2).toString(),
             "operator with Int (1.3.Dc * 2)"
         )
         val mydeci = 1.3.Dc * 2
         assertEquals(
             "2.6",
-            mydeci.toRawDecimalString(),
+            mydeci.toString(),
             "operator with mydeci = (1.3.Dc * 2)"
         )
         assertEquals(
             "-18199999992.72",
-            (1999999999.2.Dc * (-9.1).Dc).toRawDecimalString(),
+            (1999999999.2.Dc * (-9.1).Dc).toString(),
             "operator with (19999999992..Dc * (-9.1).Dc)"
         )
         /*
@@ -122,7 +122,7 @@ class ArithmeticBinaryOperatorsTest {
         assertFailsWith(
             ArithmeticException::class,
             "operator with (1999999999.2.Dc * (-99999999999.1).Dc)",
-            {(1999999999.2.Dc * (-99999999999.1).Dc).toRawDecimalString()}
+            {(1999999999.2.Dc * (-99999999999.1).Dc).toString()}
         )
         /*
         assertEquals(  // this is Overflow!
@@ -147,44 +147,44 @@ class ArithmeticBinaryOperatorsTest {
     @Test fun opDivTests() {
         assertEquals(
             "4",
-            (12.Dc / 3.Dc).toRawDecimalString(),
+            (12.Dc / 3.Dc).toString(),
             "operator (12.Dc / 3.Dc)"
         )
         assertEquals(
             "4",
-            (12.Dc / 3.Dc).toRawDecimalString(),
+            (12.Dc / 3.Dc).toString(),
             "operator (12.Dc / 3.Dc)"
         )
         assertEquals(
             "0.2",
-            (0.8.Dc / 4.Dc).toRawDecimalString(),
+            (0.8.Dc / 4.Dc).toString(),
             "operator ((0.8).Dc / 4.Dc)"
         )
 
         assertEquals(
             "3.428571428571429",
-            (12.Dc / 3.5.Dc).toRawDecimalString(),
+            (12.Dc / 3.5.Dc).toString(),
             "operator (12.Dc / 3.5.Dc)"
         )
 
         assertEquals(
             "-0.2",
-            ((-0.8).Dc / 4.Dc).toRawDecimalString(),
+            ((-0.8).Dc / 4.Dc).toString(),
             "operator ((-0.8).Dc / 4.Dc)"
         )
         assertEquals(
             "0.2",
-            ((-0.8).Dc / (-4).Dc).toRawDecimalString(),
+            ((-0.8).Dc / (-4).Dc).toString(),
             "operator ((-0.8).Dc / (-4).Dc)"
         )
         assertEquals(
             "0.177777777777778",
-            ((0.8).Dc / (4.5).Dc).toRawDecimalString(),
+            ((0.8).Dc / (4.5).Dc).toString(),
             "operator ((0.8).Dc / (4.5).Dc)"
         )
         assertEquals(
             "0.177777777777778",
-            ((-0.8).Dc / (-4.5).Dc).toRawDecimalString(),
+            ((-0.8).Dc / (-4.5).Dc).toString(),
             "operator ((-0.8).Dc / (-4.5).Dc)"
         )
     }
@@ -192,17 +192,17 @@ class ArithmeticBinaryOperatorsTest {
     @Test fun opRemTests() {
         assertEquals(
             "0",
-            (12.Dc % 3.Dc).toRawDecimalString(),
+            (12.Dc % 3.Dc).toString(),
             "operator (12.Dc % 3.Dc)"
         )
         assertEquals(
             "1",
-            (13.Dc % 3.Dc).toRawDecimalString(),
+            (13.Dc % 3.Dc).toString(),
             "operator (13.Dc % 3.Dc)"
         )
         assertEquals(
             "1.5",
-            (12.Dc % 3.5.Dc).toRawDecimalString(),
+            (12.Dc % 3.5.Dc).toString(),
             "operator (12.Dc % 3.5.Dc)"
         )
     }

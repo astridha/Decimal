@@ -334,7 +334,7 @@ public open class Decimal : Number, Comparable<Decimal> {
         }
         val resultDecimals = thisDecimals + otherDecimals
         if (willOverflowMantissa(resultMantissa, resultDecimals)) {
-            return generateErrorDecimal(Error.MULTIPLY_OVERFLOW, "$this * $other = ${toString(resultMantissa, resultDecimals)} result does not fit into DECIMAL")
+            return generateErrorDecimal(Error.MULTIPLY_OVERFLOW, "$this * $other = ${toRawString(resultMantissa, resultDecimals)} result does not fit into DECIMAL")
         }
         val (roundedMantissa, roundedDecimals) = roundWithMode(resultMantissa, resultDecimals,autoDecimalPlaces, autoRoundingMode)
         return Decimal(roundedMantissa, roundedDecimals, true)
@@ -476,8 +476,8 @@ public open class Decimal : Number, Comparable<Decimal> {
     }
 
 
-    public override fun toDouble(): Double = this.toRawDecimalString().toDouble()
-    public override fun toFloat(): Float = this.toRawDecimalString().toFloat()
+    public override fun toDouble(): Double = this.toString().toDouble()
+    public override fun toFloat(): Float = this.toString().toFloat()
     public override fun toLong(): Long = truncatedMantissa()
     public override fun toInt(): Int = truncatedMantissa().toInt()
     public override fun toShort(): Short = truncatedMantissa().toShort()
@@ -501,10 +501,17 @@ public open class Decimal : Number, Comparable<Decimal> {
     /********************  Unformatted or formatted Output to human-readable Strings  ****************************/
 
 
-     public fun toRawDecimalString() : String {
+     public  override fun toString() : String {
         val (mantissa, decimals) = unpack64()
-        return toString(mantissa, decimals)
-    }
+        var decimalstring = toRawString(mantissa, decimals)
+
+        // only for display!: complete minimum decimal places with "0"
+        if (autoDeprecatedMinDecimals > 0) {
+            val  missingplaces = autoDeprecatedMinDecimals - decimals
+            if (decimals <= 0) decimalstring += '.'
+            if (missingplaces > 0) decimalstring += ("0".repeat(missingplaces))
+        }
+        return decimalstring    }
 
 
     public fun toScientificString() : String {
@@ -525,20 +532,13 @@ public open class Decimal : Number, Comparable<Decimal> {
         return prefix+decimalString+'E'+adjustedExp.toString(10)
     }
 
-    public override fun toString() : String {
-        val (_, decimals) = unpack64()
-        var decimalstring = this.toRawDecimalString()
-        // only for display!: complete minimum decimal places with "0"
-        if (autoDeprecatedMinDecimals > 0) {
-            val  missingplaces = autoDeprecatedMinDecimals - decimals
-            if (decimals <= 0) decimalstring += '.'
-            if (missingplaces > 0) decimalstring += ("0".repeat(missingplaces))
-        }
-        return decimalstring
-    }
-
-    public fun toFormatted(decim: String, thousands: String) : String {
-        var rawstring = this.toRawDecimalString()
+    public fun toFormattedString(thousands: Char = ',', decim: Char = '.', minDecimalPlaces: Int = autoDeprecatedMinDecimals) : String {
+        // inserts thousands delimiters between groups of 3 digits dynamically, and adds minimum of decimal places
+        // i.e., needs no formatting string and supports no overall minimum width
+        require (thousands != decim) {"Thousands separator and decimal separator must not be identical"}
+        val thousandsString = thousands.toString()
+        val decimString = decim.toString()
+        var rawstring = this.toString()
         var decimpart = ""
         val dotpos = rawstring.indexOf(".")
         if (dotpos >= 0) {
@@ -548,19 +548,19 @@ public open class Decimal : Number, Comparable<Decimal> {
 
         rawstring = rawstring.reversed()
             .chunked(3)
-            .joinToString(thousands)
+            .joinToString(thousandsString)
             .reversed()
         if (dotpos >= 0) {
           rawstring = buildString {
               append(rawstring)
-              append(decim)
+              append(decimString)
               append(decimpart)
           }
         }
 
-        if (autoDeprecatedMinDecimals > 0) {
+        if (minDecimalPlaces > 0) {
             val decimals = decimpart.length
-            val  missingplaces = autoDeprecatedMinDecimals - decimals
+            val  missingplaces = minDecimalPlaces - decimals
             if (decimals <= 0) rawstring += decim
             if (missingplaces > 0) rawstring += ("0".repeat(missingplaces))
         }
@@ -722,7 +722,7 @@ public open class Decimal : Number, Comparable<Decimal> {
         }
 
         // Simple Output
-        internal fun toString(mantissa: Long, decimals: Int) : String {
+        internal fun toRawString(mantissa: Long, decimals: Int) : String {
             if (mantissa == 0L) {
                 if (decimals == 0) return "0"
                 return getError(decimals).toString()

@@ -15,13 +15,13 @@ class ArithmeticAssignOperatorsTest {
         d1 += 3
         assertEquals(
             "15 12",
-            d1.toRawDecimalString()+" "+d2.toRawDecimalString(),
+            d1.toString()+" "+d2.toString(),
             "operator = (d2 shouldn't change when d1 is changed)"
         )
 
         assertEquals(  // this is not Overflow!
             "${Decimal.MAX_DECIMAL_LONG_VALUE}",
-            (Decimal.MAX_DECIMAL_LONG_VALUE.Dc).toRawDecimalString(),
+            (Decimal.MAX_DECIMAL_LONG_VALUE.Dc).toString(),
             "plain (${Decimal.MAX_DECIMAL_LONG_VALUE.Dc})"
         )
         assertFailsWith(  // this is Overflow and must trow!
@@ -31,7 +31,7 @@ class ArithmeticAssignOperatorsTest {
         )
         assertEquals(  // this is not Overflow!
             "${Decimal.MAX_DECIMAL_LONG_VALUE}",
-            "${Decimal.MAX_DECIMAL_LONG_VALUE}".Dc.toRawDecimalString(),
+            "${Decimal.MAX_DECIMAL_LONG_VALUE}".Dc.toString(),
             """"plain (${"${Decimal.MAX_DECIMAL_LONG_VALUE}".Dc})"""
         )
         assertFailsWith(  // this is Overflow and must trow!
@@ -48,38 +48,38 @@ class ArithmeticAssignOperatorsTest {
         d += 3.Dc
         assertEquals(
             "15",
-            d.toRawDecimalString(),
+            d.toString(),
             "operator (12.Dc += 3.Dc)"
         )
         d=12.Dc
         d += 3
         assertEquals(
             "15",
-            d.toRawDecimalString(),
+            d.toString(),
             "operator (12.Dc += 3)"
         )
         d=12.468.Dc
         d += 3
         assertEquals(
             "15.468",
-            d.toRawDecimalString(),
+            d.toString(),
             "operator (12.468Dc += 3)"
         )
         d=12.468.Dc
         d += 3.1111
         assertEquals(
             "15.5791",
-            d.toRawDecimalString(),
+            d.toString(),
             "operator (12.468Dc += 3.1111)"
         )
         assertEquals(
             "0.3",
-            (0.1.Dc + 0.1.Dc + 0.1.Dc).toRawDecimalString(),
+            (0.1.Dc + 0.1.Dc + 0.1.Dc).toString(),
             "operator ((0.1.Dc + 0.1.Dc + 0.1.Dc) = 0.3)"
         )
         assertEquals(
             "0.001",
-            (0.1.Dc * 0.1.Dc * 0.1.Dc).toRawDecimalString(),
+            (0.1.Dc * 0.1.Dc * 0.1.Dc).toString(),
             "operator ((0.1.Dc + 0.1.Dc + 0.1.Dc) = 0.3)"
         )
     }
@@ -91,14 +91,14 @@ class ArithmeticAssignOperatorsTest {
         d -= 3.Dc
         assertEquals(
             "9",
-            d.toRawDecimalString(),
+            d.toString(),
             "operator (12.Dc -= 3.Dc)"
         )
         d=12.Dc
         d -= 3
         assertEquals(
             "9",
-            d.toRawDecimalString(),
+            d.toString(),
             "operator (12.Dc -= 3)"
         )
     }
@@ -111,14 +111,14 @@ class ArithmeticAssignOperatorsTest {
         d *= 3.Dc
         assertEquals(
             "36",
-            d.toRawDecimalString(),
+            d.toString(),
             "operator (12.Dc *= 3.Dc)"
         )
         d=12.Dc
         d *= 3
         assertEquals(
             "36",
-            d.toRawDecimalString(),
+            d.toString(),
             "operator (12.Dc *= 3)"
         )
     }
@@ -129,28 +129,28 @@ class ArithmeticAssignOperatorsTest {
         d /= 3.Dc
         assertEquals(
             "4",
-            d.toRawDecimalString(),
+            d.toString(),
             "operator (12.Dc /= 3.Dc)"
         )
         d=12.Dc
         d /= 3
         assertEquals(
             "4",
-            d.toRawDecimalString(),
+            d.toString(),
             "operator (12.Dc /= 3)"
         )
         d=1.Dc
         d /= 3
         assertEquals(
             "0.333333333333333",
-            d.toRawDecimalString(),
+            d.toString(),
             "operator (1.Dc /= 3)"
         )
         d=2.Dc
         d /= 3
         assertEquals(
             "0.666666666666667",
-            d.toRawDecimalString(),
+            d.toString(),
             "operator (2.Dc /= 3)"
         )
     }
@@ -162,14 +162,14 @@ class ArithmeticAssignOperatorsTest {
         d %= 3.Dc
         assertEquals(
             "0",
-            d.toRawDecimalString(),
+            d.toString(),
             "operator (12.Dc %= 3)"
         )
         d=12.Dc
         d %= 3
         assertEquals(
             "0",
-            d.toRawDecimalString(),
+            d.toString(),
             "operator (12.Dc %= 3)"
         )
     }
