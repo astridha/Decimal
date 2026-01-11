@@ -1,10 +1,10 @@
-package io.github.astridha.decimal
+package io.github.astridha.smalldecimal
 
 import kotlin.math.min
-import io.github.astridha.decimal.Decimal.*
-import io.github.astridha.decimal.Decimal.Companion.generateErrorCode
-import io.github.astridha.decimal.Decimal.Companion.generateErrorDecimal
-import io.github.astridha.decimal.Decimal.Companion.MAX_LONG_SIGNIFICANTS
+import io.github.astridha.smalldecimal.Decimal.*
+import io.github.astridha.smalldecimal.Decimal.Companion.generateErrorCode
+import io.github.astridha.smalldecimal.Decimal.Companion.generateErrorDecimal
+import io.github.astridha.smalldecimal.Decimal.Companion.MAX_LONG_SIGNIFICANTS
 //import System
 
 private fun IsMantissaStringTooLong(mantissaString: String): Boolean {

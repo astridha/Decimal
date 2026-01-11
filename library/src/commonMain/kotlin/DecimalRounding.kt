@@ -1,7 +1,7 @@
-package io.github.astridha.decimal
+package io.github.astridha.smalldecimal
 
-import io.github.astridha.decimal.Decimal.Error
-import io.github.astridha.decimal.Decimal.Companion.MAX_MANTISSA_VALUE
+import io.github.astridha.smalldecimal.Decimal.Error
+import io.github.astridha.smalldecimal.Decimal.Companion.MAX_MANTISSA_VALUE
 import kotlin.math.abs
 
 internal fun getPower10(exponent: Int) : Long { // only for between 0 and 16!!!

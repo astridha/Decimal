@@ -1,17 +1,18 @@
-# Decimal type on a 64bit footprint
+# A Small Multiplatform Decimal Type
 
-### A compact Decimal class with small exponents and a predictive, smaller footprint than BigDecimal.  
+### This Library offers a fixed-size Decimal class with small exponents and a predictive, smaller footprint than BigDecimal.  
 
-KMP Multiplatform, only Common, no platform dependencies (and no restriction to JVM).
+Made for Kotlin Multiplatform, no restriction to JVM.
 
+The **Decimal** class implements Number and Comparable interfaces, with a 64 Bit footprint.   
+It supports math operators **+**, **-**, <b>*</b>, **/**, and **%**, as well as **++** and **--**.
 
-The Decimal class implements Number and Comparable interfaces, with a 64 Bit footprint.
 
 ## Characteristics   
 
-The footprint consists of a 60 bit mantissa, and a 4 bit exponent
+The footprint of a **Decimal** instance consists of a 60 bit mantissa, and a 4 bit exponent.
 
-It's value range is from -576_460_752_303_423_487 to +576_460_752_303_423_487.  
+It's mantissa range is from -576_460_752_303_423_487 to +576_460_752_303_423_487.  
 
 So, 17 - 18 significant decimal digits with 0 - 15 decimal places are supported.
 
@@ -100,7 +101,7 @@ round(): Decimal  // RoundingMode.HALF_EVEN
 
 ### Import
 ``` kotlin
-import io.github.astridha.decimal.*
+import io.github.astridha.smalldecimal.*
 ```
 
 #### Usage (not yet active!)
@@ -109,7 +110,7 @@ Use maven dependency:
 ```xml
 <dependency>
     <groupId>io.github.astridha</groupId>
-    <artifactId>decimal</artifactId>
+    <artifactId>smalldecimal</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```

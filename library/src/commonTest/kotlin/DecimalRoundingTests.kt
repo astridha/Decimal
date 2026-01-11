@@ -1,8 +1,8 @@
 @file:Suppress("ClassName")
 
-package io.github.astridha.decimal
+package io.github.astridha.smalldecimal
 
-import io.github.astridha.decimal.Decimal.Companion.getRoundingMode
+import io.github.astridha.smalldecimal.Decimal.Companion.getRoundingMode
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

@@ -1,4 +1,4 @@
-package io.github.astridha.decimal
+package io.github.astridha.smalldecimal
 
 
 /*********  Math-like implementations *************/

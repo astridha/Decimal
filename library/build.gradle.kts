@@ -9,10 +9,12 @@ plugins {
     //alias(libs.plugins.vanniktech.mavenPublish)
     id("com.vanniktech.maven.publish") version "0.35.0"
     // id("org.jetbrains.kotlin.kapt")
+
+    id("maven-publish")
 }
 
 group = "io.github.astridha"
-//artifact="decimal"
+// artifact="smalldecimal"
 version = "0.5.0"
 
 
@@ -25,7 +27,7 @@ kotlin {
     //@Suppress("UnstableApiUsage")
     // androidLibrary {
     androidLibrary {
-        namespace = "io.github.astridha.decimal"
+        namespace = "io.github.astridha.smalldecimal"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
 
@@ -98,15 +100,16 @@ kotlin {
 mavenPublishing {
     publishToMavenCentral()
 
-    signAllPublications()
+    // remove comment slashes below for publishing to maven central!
+    // signAllPublications()
 
-    coordinates(group.toString(), "decimal", version.toString())
+    coordinates(group.toString(), "smalldecimal", version.toString())
 
     pom {
-        name = "Decimal Library"
-        description = "Slim Decimal Type on a 64bit footprint."
+        name = "Small Decimal Library"
+        description = "Small Decimal Type on a 64bit footprint."
         inceptionYear = "2026"
-        url = "https://github.com/astridha/decimal/"
+        url = "https://github.com/astridha/smalldecimal/"
         licenses {
             license {
                 name = "MIT License"
@@ -125,9 +128,9 @@ mavenPublishing {
             }
         }
         scm {
-            url = "https://github.com/astridha/decimal/"
-            connection = "scm:git:git://github.com/astridha/decimal.git"
-            developerConnection = "scm:git:ssh://git@github.com/astridha/decimal/"
+            url = "https://github.com/astridha/smalldecimal/"
+            connection = "scm:git:git://github.com/astridha/smalldecimal.git"
+            developerConnection = "scm:git:ssh://git@github.com/astridha/smalldecimal/"
         }
     }
 }
