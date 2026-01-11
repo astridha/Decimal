@@ -344,12 +344,12 @@ public open class Decimal : Number, Comparable<Decimal> {
         if ((thisMantissa == 0L) or (otherMantissa == 0L)) return Decimal(0,0)
 
        if (willOverflowLong(thisMantissa, otherMantissa)) {
-           return generateErrorDecimal(Error.MULTIPLY_OVERFLOW, "$this * $other result does not fit into DECIMAL")
+           return generateErrorDecimal(Error.MULTIPLY_OVERFLOW, "$this * $other result does not fit into Decimal")
         }
         val resultMantissa = thisMantissa * otherMantissa
         val resultDecimals = thisDecimals + otherDecimals
         if (willOverflowMantissa(resultMantissa, resultDecimals)) {
-            return generateErrorDecimal(Error.MULTIPLY_OVERFLOW, "$this * $other = ${toRawString(resultMantissa, resultDecimals)} result does not fit into DECIMAL")
+            return generateErrorDecimal(Error.MULTIPLY_OVERFLOW, "$this * $other = ${toRawString(resultMantissa, resultDecimals)} result does not fit into Decimal")
         }
         val (roundedMantissa, roundedDecimals) = roundWithMode(resultMantissa, resultDecimals,autoDecimalPlaces, autoRoundingMode)
         return Decimal(roundedMantissa, roundedDecimals)
