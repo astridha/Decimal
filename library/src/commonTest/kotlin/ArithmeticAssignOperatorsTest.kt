@@ -8,14 +8,16 @@ import kotlin.test.assertFailsWith
 class ArithmeticAssignOperatorsTest {
 
     @Test fun opAssignAssignTests() {
+        var d0: Decimal
         var d1: Decimal
         var d2: Decimal
+        d0 = 3.Dc
         d1 = 12.Dc
         d2 = d1
         d1 += 3
         assertEquals(
-            "15 12",
-            d1.toString()+" "+d2.toString(),
+            "3 15 12",
+            d0.toString()+" "+d1.toString()+" "+d2.toString(),
             "operator = (d2 shouldn't change when d1 is changed)"
         )
 

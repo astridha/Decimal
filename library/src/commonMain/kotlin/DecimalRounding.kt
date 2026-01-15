@@ -8,9 +8,10 @@ internal fun getPower10(exponent: Int) : Long { // only for between 0 and 18!!!
     var power: Long = 1
     if (exponent < 0) return 0 // solve somehow else, but generally shouldn't happen
     if (exponent > (Decimal.MAX_LONG_SIGNIFICANTS-1)) {
+        // throw but no return, because return value is not decimal? or just return -1?
         Decimal.generateErrorDecimal(Error.ROUNDING_FAILED, "Rounding Overflow")
     }
-    repeat (exponent) { power *= 10 }
+    repeat (exponent) { power *= 10 } // or fixed long values? Size = 18 x 8 = 144 Bytes
     return power
 }
 
@@ -38,7 +39,7 @@ internal fun roundWithMode(rawMantissa: Long, rawDecimals: Int, desiredDecimals:
     var currentMantissa = rawMantissa
     var currentDecimals = rawDecimals
     // truncate any empty decimal places (low-hanging fruits)
-    while ((currentDecimals > 0) and (currentMantissa != 0L) and ((currentMantissa % 10) == 0L)) {
+    while ((currentDecimals > 0) && (currentMantissa != 0L) && ((currentMantissa % 10) == 0L)) {
         currentMantissa /= 10
         currentDecimals--
     }
@@ -95,7 +96,7 @@ internal fun roundWithMode(rawMantissa: Long, rawDecimals: Int, desiredDecimals:
     }
 
     // truncate any empty decimal places that might have come though rounding
-    while ((newDecimals > 0) and (newMantissa != 0L) and ((newMantissa % 10) == 0L)) {
+    while ((newDecimals > 0) && (newMantissa != 0L) && ((newMantissa % 10) == 0L)) {
         newMantissa /= 10
         newDecimals--
     }

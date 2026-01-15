@@ -77,37 +77,37 @@ class DecimalOutputTests {
     @Test fun toFormattedStringTests() {
         assertEquals(
             "1.000",
-            Decimal(1L).toFormattedString(thousands = ',', decim = '.', minDecimalPlaces = 3),
+            Decimal(1L).toFormattedString(thousandsDelimiter = ',', decimalDelimiter = '.', minDecimalPlaces = 3),
             "toFormattedString: decim is fullstop (default)"
         )
         assertEquals(
             "1,000",
-            Decimal(1L).toFormattedString(thousands = '.', decim = ',', minDecimalPlaces = 3),
+            Decimal(1L).toFormattedString(thousandsDelimiter = '.', decimalDelimiter = ',', minDecimalPlaces = 3),
             "toFormattedString: decim is comma"
         )
         assertFailsWith(
             IllegalArgumentException::class,
             "toFormattedString: identical thousands and decim are invalid",
-            {Decimal(1L).toFormattedString(thousands = ',', decim = ',', minDecimalPlaces = 3)}
+            {Decimal(1L).toFormattedString(thousandsDelimiter = ',', decimalDelimiter = ',', minDecimalPlaces = 3)}
         )
         assertEquals(
             "1.000.000,000",
-            Decimal(1000000L).toFormattedString(thousands = '.', decim = ',', minDecimalPlaces = 3),
+            Decimal(1000000L).toFormattedString(thousandsDelimiter = '.', decimalDelimiter = ',', minDecimalPlaces = 3),
             "toFormattedString: toFormattedString: thousands is fullstop and decim is comma"
         )
         assertEquals(
             "1.000.000,000",
-            Decimal(1000000L).toFormattedString(thousands = '.', decim = ',', minDecimalPlaces = 3),
+            Decimal(1000000L).toFormattedString(thousandsDelimiter = '.', decimalDelimiter = ',', minDecimalPlaces = 3),
             "toFormattedString: toFormattedString: thousands is fullstop and decim is comma"
         )
         assertEquals(
             "1.234.567,000",
-            Decimal(1234567L).toFormattedString(thousands = '.', decim = ',', minDecimalPlaces = 3),
+            Decimal(1234567L).toFormattedString(thousandsDelimiter = '.', decimalDelimiter = ',', minDecimalPlaces = 3),
             "toFormattedString: toFormattedString: thousands is fullstop and decim is comma"
         )
         assertEquals(
             "-1.234.567,000",
-            Decimal(-1234567L).toFormattedString(thousands = '.', decim = ',', minDecimalPlaces = 3),
+            Decimal(-1234567L).toFormattedString(thousandsDelimiter = '.', decimalDelimiter = ',', minDecimalPlaces = 3),
             "toFormattedString: toFormattedString: thousands is fullstop and decim is comma"
         )
     }

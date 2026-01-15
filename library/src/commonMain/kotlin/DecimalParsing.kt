@@ -1,9 +1,7 @@
 package io.github.astridha.smalldecimal
 
 import kotlin.math.min
-import io.github.astridha.smalldecimal.Decimal.*
 import io.github.astridha.smalldecimal.Decimal.Companion.generateErrorCode
-import io.github.astridha.smalldecimal.Decimal.Companion.generateErrorDecimal
 import io.github.astridha.smalldecimal.Decimal.Companion.MAX_LONG_SIGNIFICANTS
 //import System
 
@@ -14,7 +12,7 @@ private fun IsMantissaStringTooLong(mantissaString: String): Boolean {
         return true
     }
     if ((mantissaLength == Decimal.MAX_LONG_SIGNIFICANTS)
-        and (mantissaString.compareTo(Decimal.MAX_LONG_VALUESTRING) > 0)) {
+        and (mantissaString.compareTo(Decimal.MAX_LONG_VALUE_AS_STRING) > 0)) {
         return true
     }
     return false
@@ -28,7 +26,7 @@ private fun NumMantissaStringDisposableDecimalPlaces(mantissaString: String, dec
         return min(mantissaLength - MAX_LONG_SIGNIFICANTS, decimals)
     }
     if ((mantissaLength == Decimal.MAX_LONG_SIGNIFICANTS)
-        and (mantissaString.compareTo(Decimal.MAX_LONG_VALUESTRING) > 0)) {
+        and (mantissaString.compareTo(Decimal.MAX_LONG_VALUE_AS_STRING) > 0)) {
         return min(mantissaLength - (MAX_LONG_SIGNIFICANTS+1), decimals)
     }
     return 0
@@ -45,7 +43,7 @@ private fun IsMantissaStringWillOverflow(mantissaString: String, decimals: Int, 
         return true
     }
     if ((significantLength == Decimal.MAX_DECIMAL_SIGNIFICANTS)
-        and (significantString.compareTo(Decimal.MAX_DECIMAL_MANTISSASTRING) > 0)) {
+        and (significantString.compareTo(Decimal.MAX_DECIMAL_MANTISSA_AS_STRING) > 0)) {
         return true
     }
     return false
@@ -91,7 +89,7 @@ internal fun mkDecimalParseOrNull (rawNumberString: String, desiredDecimalPlaces
         mantissaString = mantissaString.dropLast(disposableDecimalPlaces)
         decimalPlaces -= disposableDecimalPlaces
         // once again remove possible trailing 0s from decimals part
-        while ((decimalPlaces > 0) and (mantissaString.last()=='0')) {
+        while ((decimalPlaces > 0) && (mantissaString.last() == '0')) {
             mantissaString = mantissaString.dropLast(1)
             decimalPlaces--
         }

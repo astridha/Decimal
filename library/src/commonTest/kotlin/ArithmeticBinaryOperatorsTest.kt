@@ -205,5 +205,55 @@ class ArithmeticBinaryOperatorsTest {
             (12.Dc % 3.5.Dc).toString(),
             "operator (12.Dc % 3.5.Dc)"
         )
+
+        assertEquals(
+            "2",
+            (5.Dc % 3.Dc).toString(),
+            "operator (5.Dc % 3.Dc)"
+        )
+        assertEquals(
+            "2",
+            (5.Dc % (-3).Dc).toString(),
+            "operator (5.Dc % (-3).Dc)"
+        )
+        assertEquals(
+            "-2",
+            ((-5).Dc % 3.Dc).toString(),
+            "operator ((-5).Dc % 3.Dc)"
+        )
+        assertEquals(
+            "-2",
+            ((-5).Dc % (-3).Dc).toString(),
+            "operator ((-5).Dc % (-3).Dc)"
+        )
+
+        assertEquals(
+            "3",
+            ((-1).Dc mod 4.Dc).toString(),
+            "operator ((-1).Dc mod 4.Dc)"
+        )
+
+        assertEquals(
+            "2",
+            (5.Dc mod 3.Dc).toString(),
+            "operator (5.Dc mod 3.Dc)"
+        )
+        assertEquals(
+            "-1",
+            (5.Dc mod (-3).Dc).toString(),
+            "operator (5.Dc mod (-3).Dc)"
+        )
+        assertEquals(
+            "1",
+            ((-5).Dc mod 3.Dc).toString(),
+            "operator ((-5).Dc mod 3.Dc)"
+        )
+        assertEquals(
+            "-2",
+            ((-5).Dc mod (-3).Dc).toString(),
+            "operator ((-5).Dc mod (-3).Dc)"
+        )
+
+
     }
 }
