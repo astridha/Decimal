@@ -110,6 +110,16 @@ class DecimalOutputTests {
             Decimal(-1234567L).toFormattedString(thousandsDelimiter = '.', decimalDelimiter = ',', minDecimalPlaces = 3),
             "toFormattedString: toFormattedString: thousands is fullstop and decim is comma"
         )
+        assertEquals(
+            "1:234:567,1234567",
+            Decimal(1234567.1234567).toFormattedString(thousandsDelimiter = ':', decimalDelimiter = ',', minDecimalPlaces = 3),
+            "toFormattedString: toFormattedString: thousands is : and decim is comma"
+        )
+        assertEquals(
+            "-1:234:567,000",
+            Decimal(-1234567).toFormattedString(thousandsDelimiter = ':', decimalDelimiter = ',', minDecimalPlaces = 3),
+            "toFormattedString: toFormattedString: thousands is : and decim is comma"
+        )
     }
 
 
