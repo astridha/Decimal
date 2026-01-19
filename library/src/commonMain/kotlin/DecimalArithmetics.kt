@@ -1,8 +1,11 @@
 package io.github.astridha.smalldecimal
 
 import io.github.astridha.smalldecimal.Decimal.Companion.MAX_MANTISSA_VALUE
+import io.github.astridha.smalldecimal.Decimal.Companion.autoDecimalPlaces
+import io.github.astridha.smalldecimal.Decimal.Companion.autoRoundingMode
 import io.github.astridha.smalldecimal.Decimal.Companion.generateErrorDecimal
 import io.github.astridha.smalldecimal.Decimal.Companion.isError
+import io.github.astridha.smalldecimal.Decimal.Companion.toRawString
 import kotlin.math.abs
 import kotlin.math.sign
 
@@ -37,13 +40,13 @@ internal class DecimalArithmetics {
         private fun Long.isNegative() = (this.sign < 0)
         private fun Long.isPositive() = (this.sign >= 0)
 
-        /***** operator plus (+) *****/
+        /********************************************** plus (+) ****************************************/
 
         internal fun arithmeticPlus(
             thisD: Decimal,
             other: Decimal,
-            roundedDecimalPlaces: Int,
-            roundingMode: Decimal.RoundingMode
+            roundToPlaces: Int = Decimal.autoDecimalPlaces,
+            roundingMode: Decimal.RoundingMode = Decimal.autoRoundingMode
         ): Decimal {
             if (isError(thisD) or isError(other)) return thisD.clone()
             val (thisMantissa, thisDecimals) = thisD.unpack64()
@@ -71,19 +74,19 @@ internal class DecimalArithmetics {
             val (roundedMantissa, roundedDecimals) = roundWithMode(
                 equalizedMantissaSum,
                 equalizedDecimals,
-                roundedDecimalPlaces,
+                roundToPlaces,
                 roundingMode
             )
             return Decimal(roundedMantissa, roundedDecimals)
         }
 
-
+        /********************************************** minus (-) ****************************************/
 
         internal fun arithmeticMinus(
             thisD: Decimal,
             other: Decimal,
-            roundedDecimalPlaces: Int,
-            roundingMode: Decimal.RoundingMode
+            roundToPlaces: Int = Decimal.autoDecimalPlaces,
+            roundingMode: Decimal.RoundingMode = Decimal.autoRoundingMode
         ) : Decimal {
             if (isError(thisD) or isError(other)) return thisD.clone()
             val (thisMantissa, thisDecimals) = thisD.unpack64()
@@ -108,13 +111,75 @@ internal class DecimalArithmetics {
             val (roundedMantissa, roundedDecimals) = roundWithMode(
                 equalizedMantissaSum,
                 equalizedDecimals,
-                roundedDecimalPlaces,
+                roundToPlaces,
                 roundingMode
             )
             return Decimal(roundedMantissa, roundedDecimals)
         }
 
+        /********************************************** times (*) ****************************************/
 
+        private fun willOverflowLong(a: Long, b: Long): Boolean{
+            if ((a > 0) && (b > 0) && (a > (Long.MAX_VALUE / b))) return true
+            if ((a > 0) && (b < 0) && (b < (Long.MIN_VALUE / a))) return true
+            if ((a < 0) && (b > 0) && (a < (Long.MIN_VALUE / b))) return true
+            return( (a < 0) && (b < 0) && (a < (Long.MAX_VALUE / b)))
+        }
+
+        private fun willOverflowMantissa(mantissa: Long, decimals: Int): Boolean {
+            // this assumes later rounding to autoDecimalPlaces!
+            // any tolerated overflow must be guaranteed to be removed later when being rounded away
+            if ((abs(mantissa) > (MAX_MANTISSA_VALUE*10)) && (decimals <= (autoDecimalPlaces-2))) return true
+            if ((abs(mantissa) > MAX_MANTISSA_VALUE ) && (decimals <= (autoDecimalPlaces-1))) return true
+            return false
+        }
+
+        public fun arithmeticTimes(
+            thisD: Decimal,
+            other: Decimal,
+            roundToPlaces: Int = Decimal.autoDecimalPlaces,
+            roundingMode: Decimal.RoundingMode = Decimal.autoRoundingMode
+        ) : Decimal {
+            if (isError(thisD) or isError(other)) return thisD.clone()
+            var (thisMantissa, thisDecimals) = thisD.unpack64()
+            var (otherMantissa, otherDecimals) = other.unpack64()
+            println("Multiplication: this: $thisMantissa other: $otherMantissa, product: ${thisMantissa * otherMantissa}")
+
+            // 0, no rounding needed
+            if ((thisMantissa == 0L) || (otherMantissa == 0L)) return Decimal(0,0)
+
+            // temporary compression may help avoid overflow in some cases
+            while ((thisMantissa % 10) == 0L) { thisMantissa /= 10; thisDecimals --  }
+            while ((otherMantissa % 10) == 0L) { otherMantissa /= 10; otherDecimals --  }
+
+            if (willOverflowLong(thisMantissa, otherMantissa)) {
+                return generateErrorDecimal(Decimal.Error.MULTIPLY_OVERFLOW, "$this * $other result does not fit into Decimal")
+            }
+            var resultMantissa = thisMantissa * otherMantissa
+            var resultDecimals = thisDecimals + otherDecimals
+            if (resultDecimals < 0) {
+                val pw10 = getPower10(0-resultDecimals)
+                resultMantissa *= pw10
+                resultDecimals = 0
+            }
+            if (willOverflowMantissa(resultMantissa, resultDecimals)) {
+                return generateErrorDecimal(Decimal.Error.MULTIPLY_OVERFLOW, "$this * $other = ${toRawString(resultMantissa, resultDecimals)} result does not fit into Decimal")
+            }
+            val (roundedMantissa, roundedDecimals) = roundWithMode(resultMantissa, resultDecimals,roundToPlaces, roundingMode)
+            return Decimal(roundedMantissa, roundedDecimals)
+        }
+
+        /********************************************** div (/) ****************************************/
+
+
+
+
+        /********************************************** rem (%) ****************************************/
+
+
+
+
+        /********************************************** mod (mod) ****************************************/
 
     }
 }

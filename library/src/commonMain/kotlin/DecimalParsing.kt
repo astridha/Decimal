@@ -5,6 +5,36 @@ import io.github.astridha.smalldecimal.Decimal.Companion.generateErrorCode
 import io.github.astridha.smalldecimal.Decimal.Companion.MAX_LONG_SIGNIFICANTS
 //import System
 
+private fun numDisposableDecimalPlaces(mantissaString: String, decimals:Int): Int {
+    // count how many decimal places are outside of Long and should be cut *even before* parsing and rounding
+    val mantissaLength = mantissaString.length
+    if (mantissaLength > Decimal.MAX_LONG_SIGNIFICANTS) {
+        return min(mantissaLength - MAX_LONG_SIGNIFICANTS, decimals)
+    }
+    if ((mantissaLength == Decimal.MAX_LONG_SIGNIFICANTS)
+        and (mantissaString.compareTo(Decimal.MAX_LONG_VALUE_AS_STRING) > 0)) {
+        return min(mantissaLength - (MAX_LONG_SIGNIFICANTS+1), decimals)
+    }
+    return 0
+}
+
+private fun wouldDecimalStringOverflow(mantissaString: String, decimals: Int, desiredDecimals: Int): Boolean {
+    // Calculates whether integer part plus desired decimal part (after rounding) together will fit into Decimal
+    val mantissaLength = mantissaString.length
+    val integerLength = mantissaLength - decimals
+    val decimalsLength = min(decimals, desiredDecimals)
+    val significantLength =  integerLength + decimalsLength
+    val significantString = mantissaString.take(significantLength)
+    if (significantLength > Decimal.MAX_DECIMAL_SIGNIFICANTS) {
+        return true
+    }
+    if ((significantLength == Decimal.MAX_DECIMAL_SIGNIFICANTS)
+        and (significantString.compareTo(Decimal.MAX_DECIMAL_MANTISSA_AS_STRING) > 0)) {
+        return true
+    }
+    return false
+ }
+
 private fun IsMantissaStringTooLong(mantissaString: String): Boolean {
     //  Calculates whether mantissa will fit into Long
     val mantissaLength = mantissaString.length
@@ -17,37 +47,6 @@ private fun IsMantissaStringTooLong(mantissaString: String): Boolean {
     }
     return false
 }
-
-private fun NumMantissaStringDisposableDecimalPlaces(mantissaString: String, decimals:Int): Int {
-    // count how many decimal places are outside of Long and should be cut before parsing and rounding
-    val mantissaLength = mantissaString.length
-    if (mantissaLength >= Decimal.MAX_LONG_SIGNIFICANTS) println("disposable: mantissaLength: $mantissaLength, decimals: $decimals => ${min(mantissaLength - (MAX_LONG_SIGNIFICANTS+1), decimals)}")
-    if (mantissaLength > Decimal.MAX_LONG_SIGNIFICANTS) {
-        return min(mantissaLength - MAX_LONG_SIGNIFICANTS, decimals)
-    }
-    if ((mantissaLength == Decimal.MAX_LONG_SIGNIFICANTS)
-        and (mantissaString.compareTo(Decimal.MAX_LONG_VALUE_AS_STRING) > 0)) {
-        return min(mantissaLength - (MAX_LONG_SIGNIFICANTS+1), decimals)
-    }
-    return 0
-}
-
-private fun IsMantissaStringWillOverflow(mantissaString: String, decimals: Int, desiredDecimals: Int): Boolean {
-    // Calculates whether integer part and desired decimal part (after rounding) together will fit into Decimal
-    val mantissaLength = mantissaString.length
-    val preCommaLength = mantissaLength - decimals
-    val postCommaLength = min(decimals, desiredDecimals)
-    val significantLength =  preCommaLength + postCommaLength
-    val significantString = mantissaString.take(significantLength)
-    if (significantLength > Decimal.MAX_DECIMAL_SIGNIFICANTS) {
-        return true
-    }
-    if ((significantLength == Decimal.MAX_DECIMAL_SIGNIFICANTS)
-        and (significantString.compareTo(Decimal.MAX_DECIMAL_MANTISSA_AS_STRING) > 0)) {
-        return true
-    }
-    return false
- }
 
 
 internal fun mkDecimalParseOrNull (rawNumberString: String, desiredDecimalPlaces: Int = Decimal.autoDecimalPlaces, orNull: Boolean) : Pair <Long, Int>? {
@@ -65,25 +64,23 @@ internal fun mkDecimalParseOrNull (rawNumberString: String, desiredDecimalPlaces
     }
 
     val exponent = (match.groups["exponent"]?.value ?: "0").toInt()
-
-    val fractionString = (match.groups["fraction"]?.value ?: "").trimEnd('0')
-    var decimalPlaces = fractionString.length
-
-    val integerString = (match.groups["integer"]?.value ?: "").trimStart('0')
     val prefixString = match.groups["prefix"]?.value ?: ""
+    val integerString = (match.groups["integer"]?.value ?: "").trimStart('0')
+    val fractionString = (match.groups["fraction"]?.value ?: "").trimEnd('0')
+    var mantissaString = integerString + fractionString
 
-    var mantissaString = prefixString + integerString + fractionString
-    decimalPlaces -= exponent                 // exponent calculates reverse, 0 - exponent = decimal places!
+    var decimalPlaces = fractionString.length
+    decimalPlaces -= exponent
 
-    // detect whether mantissaString including desiredDecimals cannot fit
-    if (IsMantissaStringWillOverflow(mantissaString, decimalPlaces, desiredDecimalPlaces)) {
+    // detect if this won't fit into Decimal even after truncating+rounding, because of too many significant places
+    if (wouldDecimalStringOverflow(mantissaString, decimalPlaces, desiredDecimalPlaces)) {
         println("mantissa $mantissaString will overflow")
         val errno = generateErrorCode(Decimal.Error.PARSING_OVERFLOW,"\"$rawNumberString\" cannot fit into a Decimal")
        return Pair(0, errno)
     }
 
-    // if necessary, ideally truncate to Long (but truncate only disposable decimal digits) and condense again
-    val disposableDecimalPlaces = NumMantissaStringDisposableDecimalPlaces(mantissaString, decimalPlaces)
+    // truncate disposable decimal digits for fitting into Long (and ability to round)
+    val disposableDecimalPlaces = numDisposableDecimalPlaces(mantissaString, decimalPlaces)
     if (disposableDecimalPlaces > 0) {
         println("dispose $disposableDecimalPlaces")
         mantissaString = mantissaString.dropLast(disposableDecimalPlaces)
@@ -103,6 +100,7 @@ internal fun mkDecimalParseOrNull (rawNumberString: String, desiredDecimalPlaces
          return Pair(0, errno)
     }
 
+    mantissaString = prefixString + mantissaString
     if (mantissaString in listOf("+", "- ", "")) mantissaString += "0"
     val mantissa: Long = mantissaString.toLong()
 

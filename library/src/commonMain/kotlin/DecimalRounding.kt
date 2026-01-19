@@ -34,7 +34,7 @@ internal fun getRoundingModeSpecificCalculation(roundingMode: Decimal.RoundingMo
 // desiredDecimals can be below 0, which means that the lowest pre-comma places will also be rounded to 0
 // but resulting decimal places must aim between 0 and 15, independent of autoprecision
 // and long rawMantissa must also be handled and be shortened if greater than MAX_DECIMAL_VALUE/MIN_DECIMAL_VALUE
-internal fun roundWithMode(rawMantissa: Long, rawDecimals: Int, desiredDecimals: Int, roundingMode: Decimal.RoundingMode): Pair<Long, Int> {
+internal fun roundWithMode(rawMantissa: Long, rawDecimals: Int, desiredDecimals: Int = Decimal.autoDecimalPlaces, roundingMode: Decimal.RoundingMode=Decimal.autoRoundingMode): Pair<Long, Int> {
     if (rawMantissa == 0L) return Pair(0,0)
     var currentMantissa = rawMantissa
     var currentDecimals = rawDecimals
