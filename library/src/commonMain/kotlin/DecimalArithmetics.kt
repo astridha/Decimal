@@ -2,8 +2,8 @@ package io.github.astridha.smalldecimal
 
 import io.github.astridha.smalldecimal.Decimal.Companion.MAX_DECIMAL_SIGNIFICANTS
 import io.github.astridha.smalldecimal.Decimal.Companion.MAX_MANTISSA_VALUE
-import io.github.astridha.smalldecimal.Decimal.Companion.autoDecimalPlaces
-import io.github.astridha.smalldecimal.Decimal.Companion.autoRoundingMode
+import io.github.astridha.smalldecimal.Decimal.Companion.autoRoundingConfig
+// import io.github.astridha.smalldecimal.Decimal.Companion.autoRoundingConfig.roundingMode
 import io.github.astridha.smalldecimal.Decimal.Companion.generateErrorDecimal
 import io.github.astridha.smalldecimal.Decimal.Companion.isError
 import io.github.astridha.smalldecimal.Decimal.Companion.toRawString
@@ -46,8 +46,8 @@ internal class DecimalArithmetics {
         internal fun arithmeticPlus(
             thisD: Decimal,
             other: Decimal,
-            roundToPlaces: Int = Decimal.autoDecimalPlaces,
-            roundingMode: Decimal.RoundingMode = Decimal.autoRoundingMode
+            roundToPlaces: Int = Decimal.autoRoundingConfig.decimalPlaces,
+            roundingMode: Decimal.RoundingMode = Decimal.autoRoundingConfig.roundingMode
         ): Decimal {
             if (isError(thisD) or isError(other)) return thisD.clone()
             val (thisMantissa, thisDecimals) = thisD.unpack64()
@@ -86,8 +86,8 @@ internal class DecimalArithmetics {
         internal fun arithmeticMinus(
             thisD: Decimal,
             other: Decimal,
-            roundToPlaces: Int = Decimal.autoDecimalPlaces,
-            roundingMode: Decimal.RoundingMode = Decimal.autoRoundingMode
+            roundToPlaces: Int = Decimal.autoRoundingConfig.decimalPlaces,
+            roundingMode: Decimal.RoundingMode = Decimal.autoRoundingConfig.roundingMode
         ) : Decimal {
             if (isError(thisD) or isError(other)) return thisD.clone()
             val (thisMantissa, thisDecimals) = thisD.unpack64()
@@ -128,18 +128,18 @@ internal class DecimalArithmetics {
         }
 
         private fun willOverflowMantissa(mantissa: Long, decimals: Int): Boolean {
-            // this assumes later rounding to autoDecimalPlaces!
+            // this assumes later rounding to autoRoundingConfig.decimalPlaces!
             // any tolerated overflow must be guaranteed to be removed later when being rounded away
-            if ((abs(mantissa) > (MAX_MANTISSA_VALUE*10)) && (decimals <= (autoDecimalPlaces-2))) return true
-            if ((abs(mantissa) > MAX_MANTISSA_VALUE ) && (decimals <= (autoDecimalPlaces-1))) return true
+            if ((abs(mantissa) > (MAX_MANTISSA_VALUE*10)) && (decimals <= (autoRoundingConfig.decimalPlaces-2))) return true
+            if ((abs(mantissa) > MAX_MANTISSA_VALUE ) && (decimals <= (autoRoundingConfig.decimalPlaces-1))) return true
             return false
         }
 
         internal fun arithmeticTimes(
             thisD: Decimal,
             other: Decimal,
-            roundToPlaces: Int = Decimal.autoDecimalPlaces,
-            roundingMode: Decimal.RoundingMode = Decimal.autoRoundingMode
+            roundToPlaces: Int = Decimal.autoRoundingConfig.decimalPlaces,
+            roundingMode: Decimal.RoundingMode = Decimal.autoRoundingConfig.roundingMode
         ) : Decimal {
             if (isError(thisD) or isError(other)) return thisD.clone()
             var (thisMantissa, thisDecimals) = thisD.unpack64()
@@ -175,8 +175,8 @@ internal class DecimalArithmetics {
         internal fun arithmeticDiv(
             thisD: Decimal,
             other: Decimal,
-            roundToPlaces: Int = Decimal.autoDecimalPlaces,
-            roundingMode: Decimal.RoundingMode = Decimal.autoRoundingMode
+            roundToPlaces: Int = Decimal.autoRoundingConfig.decimalPlaces,
+            roundingMode: Decimal.RoundingMode = Decimal.autoRoundingConfig.roundingMode
         ) : Decimal {
             if (isError(thisD) or isError(other)) return thisD.clone()
             var (thisMantissa, thisDecimals) = thisD.unpack64()
@@ -225,8 +225,8 @@ internal class DecimalArithmetics {
         internal fun arithmeticRem(
             thisD: Decimal,
             other: Decimal,
-            roundToPlaces: Int = Decimal.autoDecimalPlaces,
-            roundingMode: Decimal.RoundingMode = Decimal.autoRoundingMode
+            roundToPlaces: Int = Decimal.autoRoundingConfig.decimalPlaces,
+            roundingMode: Decimal.RoundingMode = Decimal.autoRoundingConfig.roundingMode
         ) : Decimal {
             if (isError(thisD) or isError(other)) return thisD.clone()
             val result = (integerDivision(thisD, other))
@@ -242,8 +242,8 @@ internal class DecimalArithmetics {
         internal fun arithmeticMod(
             thisD: Decimal,
             other: Decimal,
-            roundToPlaces: Int = Decimal.autoDecimalPlaces,
-            roundingMode: Decimal.RoundingMode = Decimal.autoRoundingMode
+            roundToPlaces: Int = Decimal.autoRoundingConfig.decimalPlaces,
+            roundingMode: Decimal.RoundingMode = Decimal.autoRoundingConfig.roundingMode
         ) : Decimal {
             if (isError(thisD) or isError(other)) return thisD.clone()
             val quotient = (thisD / other)

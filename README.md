@@ -81,7 +81,7 @@ This can be changed via **Decimal.setRoundingMode(roundingMode: RoundingMode)**.
 
 The rounding modes can be used in SetScale:
 ``` kotlin
-setScale(desiredprecision: Int, rounding: RoundingMode = autoRoundingMode): Decimal
+setScale(desiredprecision: Int, rounding: RoundingMode = autoRoundingConfig.roundingMode): Decimal
 ```
 
 Furthermore, there are four standard rounding functions that round to whole values (no decimal places):

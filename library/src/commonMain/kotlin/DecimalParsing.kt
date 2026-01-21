@@ -49,7 +49,7 @@ private fun IsMantissaStringTooLong(mantissaString: String): Boolean {
 }
 
 
-internal fun mkDecimalParseOrNull (rawNumberString: String, desiredDecimalPlaces: Int = Decimal.autoDecimalPlaces, orNull: Boolean) : Pair <Long, Int>? {
+internal fun mkDecimalParseOrNull (rawNumberString: String, desiredDecimalPlaces: Int = Decimal.autoRoundingConfig.decimalPlaces, orNull: Boolean) : Pair <Long, Int>? {
     val cleanedNumberString = rawNumberString.replace("_","").replace(" ","")
 
     val decimalNumberPattern = """(?<prefix>[+-])?(?<integer>[+-]?\d*)(?:\.(?<fraction>\d*))?(?:[Ee](?<exponent>[+-]?\d+))?"""
