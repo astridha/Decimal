@@ -9,34 +9,34 @@ class DecimalOutputTests {
     @Test fun toPlainStringTests() {
         assertEquals(
             "123",
-            Decimal(123L, 0).toString(),
+            Decimal(123L, 0).toPlainString(),
             "toPlainString: +mantissa 123L, 0 places 0"
         )
         assertEquals(
             "1.24",
-            Decimal(124L, 2).toString(),
+            Decimal(124L, 2).toPlainString(),
             "toPlainString: +mantissa, 124L +places 2"
         )
         assertEquals(
             "12500",
-            Decimal(125L, -2).toString(),
+            Decimal(125L, -2).toPlainString(),
             "toPlainString: +mantissa 125L, -places -2"
         )
         assertEquals(
             "-125",
-            Decimal(-125L, 0).toString(),
+            Decimal(-125L, 0).toPlainString(),
             "toPlainString: -mantissa -125L, 0 places"
         )
         assertEquals(
             "-1.25",
-            Decimal(-125L, +2).toString(),
+            Decimal(-125L, +2).toPlainString(),
             "toPlainString: -mantissa -125L, +places +2"
         )
         assertEquals(
             "12500",
             //Decimal(-125L, -2, true).toPlainString(),
-            12500F.Dc.toString(),
-            "toPlainString: -mantissa -125L, -places -2"
+            12500F.Dc.toPlainString(),
+            "toRawString: -mantissa -125L, -places -2"
         )
     }
 
@@ -74,74 +74,74 @@ class DecimalOutputTests {
 
     }
 
-    @Test fun toFormattedStringTests() {
+    @Test fun toStringTests() {
         assertEquals(
             "1234567890",
-            Decimal(1234567890L).toFormattedString(),
-            "toFormattedString: default setting, Long"
+            Decimal(1234567890L).toString(),
+            "toString:  default setting, Long"
         )
         assertEquals(
             "123456.789",
-            Decimal(123456.7890).toFormattedString(),
-            "toFormattedString: default setting, Double (with comma)"
+            Decimal(123456.7890).toString(),
+            "toString:  default setting, Double (with comma)"
         )
         var displayFormat = Decimal.DisplayFormat(null, '.',3)
         assertEquals(
             "1.000",
-            Decimal(1L).toFormattedString(displayFormat),
-            "toFormattedString: decimal is dot (default)"
+            Decimal(1L).toString(displayFormat),
+            "toString:  decimal is dot (default)"
         )
         displayFormat = Decimal.DisplayFormat(null, ',',3)
         assertEquals(
             "1,000",
-            Decimal(1L).toFormattedString(displayFormat),
-            "toFormattedString: decimal is comma"
+            Decimal(1L).toString(displayFormat),
+            "toString:  decimal is comma"
         )
-        
+
         assertFailsWith(
             IllegalArgumentException::class,
-            "toFormattedString: identical thousands and decimal are invalid"
+            "toString:  identical thousands and decimal are invalid"
         ) {
-            Decimal(1L).toFormattedString(Decimal.DisplayFormat('*', '*', 3))
+            Decimal(1L).toString(Decimal.DisplayFormat('*', '*', 3))
         }
 
         displayFormat = Decimal.DisplayFormat('.', ',',0)
         assertEquals(
             "1.000.000",
-            Decimal(1000000L).toFormattedString(displayFormat),
-            "toFormattedString: toFormattedString: thousands is dot and decimal is comma (but no decimals)"
+            Decimal(1000000L).toString(displayFormat),
+            "toString:  thousands is dot and decimal is comma (but no decimals)"
         )
         displayFormat = Decimal.DisplayFormat('.', ',',3)
         assertEquals(
             "1.000.000,000",
-            Decimal(1000000L).toFormattedString(displayFormat),
-            "toFormattedString: toFormattedString: thousands is dot and decimal is comma"
+            Decimal(1000000L).toString(displayFormat),
+            "toString:  thousands is dot and decimal is comma"
         )
         assertEquals(
             "1.000.000,000",
-            Decimal(1000000L).toFormattedString(displayFormat),
-            "toFormattedString: toFormattedString: thousands is dot and decimal is comma"
+            Decimal(1000000L).toString(displayFormat),
+            "toString:  thousands is dot and decimal is comma"
         )
         assertEquals(
             "1.234.567,000",
-            Decimal(1234567L).toFormattedString(displayFormat),
-            "toFormattedString: toFormattedString: thousands is dot and decimal is comma"
+            Decimal(1234567L).toString(displayFormat),
+            "toString:  thousands is dot and decimal is comma"
         )
         assertEquals(
             "-1.234.567,000",
-            Decimal(-1234567L).toFormattedString(displayFormat),
-            "toFormattedString: toFormattedString: thousands is dot and decimal is comma"
+            Decimal(-1234567L).toString(displayFormat),
+            "toString:  thousands is dot and decimal is comma"
         )
         displayFormat = Decimal.DisplayFormat(':', ',',3)
         assertEquals(
             "1:234:567,1234567",
-            Decimal(1234567.1234567).toFormattedString(displayFormat),
-            "toFormattedString: toFormattedString: thousands is : and decimal is comma"
+            Decimal(1234567.1234567).toString(displayFormat),
+            "toString:  thousands is : and decimal is comma"
         )
         assertEquals(
             "-1:234:567,000",
-            Decimal(-1234567).toFormattedString(displayFormat),
-            "toFormattedString: toFormattedString: thousands is : and decimal is comma"
+            Decimal(-1234567).toString(displayFormat),
+            "toString:  thousands is : and decimal is comma"
         )
     }
 
