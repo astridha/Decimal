@@ -76,4 +76,79 @@ class ArithmeticTests {
         )
     }
 
+    @Test fun arithmeticDivTests() {
+        assertEquals(
+            "1.667",
+            10.Dc.div(5.99999.Dc, Decimal.RoundingConfig(3, Decimal.RoundingMode.UP)).toString(),
+            "operator (10.Dc.div 5.99999.Dc, 3, Decimal.RoundingMode.UP)"
+        )
+        assertEquals(
+            "1.666",
+            10.Dc.div(5.99999.Dc, Decimal.RoundingConfig(3, Decimal.RoundingMode.DOWN)).toString(),
+            "operator (10.Dc.div 5.99999.Dc, 3, Decimal.RoundingMode.DOWN)"
+        )
+        assertEquals(
+            "1.667",
+            10.Dc.div(5.99999.Dc, Decimal.RoundingConfig(3, Decimal.RoundingMode.HALF_EVEN)).toString(),
+            "operator (10.Dc.div 5.99999.Dc, 3, Decimal.RoundingMode.HALF_EVEN)"
+        )
+        assertEquals(
+            "10",
+            10.Dc.div(0.99999.Dc, Decimal.RoundingConfig(3, Decimal.RoundingMode.HALF_EVEN)).toString(),
+            "operator (10.Dc.times 0.99999.Dc, 3, Decimal.RoundingMode.HALF_EVEN)"
+        )
+        assertEquals(
+            "-10",
+            10.Dc.div((-0.99999).Dc, Decimal.RoundingConfig(3, Decimal.RoundingMode.HALF_EVEN)).toString(),
+            "operator (10.Dc.div -0.99999.Dc, 3, Decimal.RoundingMode.HALF_EVEN)"
+        )
+        assertEquals(
+            "-10",
+            10.Dc.div((-0.99999).Dc, Decimal.RoundingConfig(3, Decimal.RoundingMode.DOWN)).toString(),
+            "operator (10.Dc.div -0.99999.Dc, 3, Decimal.RoundingMode.HALF_EVEN)"
+        )
+        assertEquals(
+            "-1",
+            0.3.Dc.div((-0.3).Dc, Decimal.RoundingConfig(3, Decimal.RoundingMode.DOWN)).toString(),
+            "operator (0.3.Dc.div -0.3.Dc, 3, Decimal.RoundingMode.HALF_EVEN)"
+        )
+    }
+    @Test fun arithmeticModTests() {
+        assertEquals(
+            "4.00001",
+            10.Dc.mod(5.99999.Dc, Decimal.RoundingConfig(3, Decimal.RoundingMode.UP)).toString(),
+            "operator (10.Dc.mod 5.99999.Dc, 3, Decimal.RoundingMode.UP)"
+        )
+        assertEquals(
+            "4.00001",
+            10.Dc.mod(5.99999.Dc, Decimal.RoundingConfig(3, Decimal.RoundingMode.DOWN)).toString(),
+            "operator (10.Dc.mod 5.99999.Dc, 3, Decimal.RoundingMode.DOWN)"
+        )
+        assertEquals(
+            "4.00001",
+            10.Dc.mod(5.99999.Dc, Decimal.RoundingConfig(3, Decimal.RoundingMode.HALF_EVEN)).toString(),
+            "operator (10.Dc.mod 5.99999.Dc, 3, Decimal.RoundingMode.HALF_EVEN)"
+        )
+        assertEquals(
+            "0.0001",
+            10.Dc.mod(0.99999.Dc, Decimal.RoundingConfig(3, Decimal.RoundingMode.HALF_EVEN)).toString(),
+            "operator (10.Dc.times 0.99999.Dc, 3, Decimal.RoundingMode.HALF_EVEN)"
+        )
+        assertEquals(
+            "-0.99989",
+            10.Dc.mod((-0.99999).Dc, Decimal.RoundingConfig(3, Decimal.RoundingMode.HALF_EVEN)).toString(),
+            "operator (10.Dc.mod -0.99999.Dc, 3, Decimal.RoundingMode.HALF_EVEN)"
+        )
+        assertEquals(
+            "-0.99989",
+            10.Dc.mod((-0.99999).Dc, Decimal.RoundingConfig(3, Decimal.RoundingMode.DOWN)).toString(),
+            "operator (10.Dc.mod -0.99999.Dc, 3, Decimal.RoundingMode.HALF_EVEN)"
+        )
+        assertEquals(
+            "0",
+            0.3.Dc.mod((-0.3).Dc, Decimal.RoundingConfig(3, Decimal.RoundingMode.DOWN)).toString(),
+            "operator (0.3.Dc.mod -0.3.Dc, 3, Decimal.RoundingMode.HALF_EVEN)"
+        )
+    }
+
 }

@@ -234,7 +234,7 @@ internal class DecimalArithmetics {
         ) : Decimal {
             if (isError(thisD) or isError(other)) return thisD.clone()
             val quotient = (thisD / other)
-            // rounding
+            // rounding is by floor
             val flooredQuotient = floor(quotient)
             println("Modulo: a: $this, m: $other, quotient: $quotient, floor: $flooredQuotient,  m*floor: ${other * flooredQuotient},  a-(m*floor): ${(thisD - (other * flooredQuotient))}")
             return (thisD - (other * flooredQuotient))
