@@ -744,7 +744,7 @@ public class Decimal : Number, Comparable<Decimal> {
         /**************************** Error Handling  ********************************/
 
         // If shallThrowOnError is false, errors are embedded into decimal places instead, while mantissa is 0
-        // see also below
+        // see this below:
 
         internal fun isError(mantissa: Long, decimalPlaces: Int) : Boolean {
             if (mantissa !=0L) return false
