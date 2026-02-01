@@ -24,8 +24,8 @@ public fun sign(d: Decimal) : Decimal = d.sign
 
 /************  Everything toDecimal() **************/
 
-public fun String.toDecimal():Decimal = Decimal(this)
-public fun String.toDecimalOrNull():Decimal? = Decimal.mkDecimalOrNull(this)
+public fun String.toDecimal():Decimal = Decimal(this, Decimal.autoLocale)
+public fun String.toDecimalOrNull():Decimal? = Decimal.mkDecimalOrNull(this,  Decimal.autoLocale)
 public fun Float.toDecimal():Decimal = Decimal(this)
 public fun Double.toDecimal():Decimal = Decimal(this)
 

@@ -51,9 +51,9 @@ public class Decimal : Number, Comparable<Decimal> {
     /***********************  Secondary Constructors  ************************/
 
     @Throws(NumberFormatException::class, ArithmeticException::class)
-    public constructor (rawNumberString: String, omitRounding: Boolean = false) { // or explicit RoundingMode?
+    public constructor (rawNumberString: String, locale: Locale = autoLocale, omitRounding: Boolean = false) { // or explicit RoundingMode?
         val roundingConfig = if (omitRounding) noRounding; else autoRounding
-        val parsedDecimalPair: Pair<Long, Int>? = mkDecimalParseOrNull(rawNumberString, roundingConfig, false)
+        val parsedDecimalPair: Pair<Long, Int>? = mkDecimalParseOrNull(rawNumberString, roundingConfig, locale, false)
         if (parsedDecimalPair != null) {
             if (!isError(parsedDecimalPair.first, parsedDecimalPair.second)) {
                 val (roundedMantissa, roundedDecimals) = roundWithMode(
@@ -73,10 +73,10 @@ public class Decimal : Number, Comparable<Decimal> {
 
 
     @Throws(ArithmeticException::class)
-    public constructor (float: Float, omitRounding: Boolean = false) : this(float.toString(), omitRounding)
+    public constructor (float: Float, omitRounding: Boolean = false) : this(float.toString(), noLocale, omitRounding)
 
     @Throws(ArithmeticException::class)
-    public constructor (double: Double, omitRounding: Boolean = false) : this(double.toString(), omitRounding)
+    public constructor (double: Double, omitRounding: Boolean = false) : this(double.toString(), noLocale, omitRounding)
 
     public constructor (other: Decimal) {
         decimal64 = other.decimal64   // or: clone()? difference?
@@ -643,8 +643,8 @@ public class Decimal : Number, Comparable<Decimal> {
         //public operator fun invoke(long:Long): Decimal = Decimal(long)
         public operator fun invoke(ulong:ULong): Decimal = Decimal(ulong.toLong())
 
-        internal fun mkDecimalOrNull(numberString: String): Decimal? {
-            val decimalPair: Pair<Long, Int>? = mkDecimalParseOrNull(numberString, autoRounding, true)
+        internal fun mkDecimalOrNull(numberString: String, locale: Locale = autoLocale): Decimal? {
+            val decimalPair: Pair<Long, Int>? = mkDecimalParseOrNull(numberString, autoRounding, locale, true)
             return if (decimalPair != null) {
                 val (roundedMantissa, roundedDecimals) = roundWithMode(decimalPair.first, decimalPair.second, autoRounding)
                 Decimal(roundedMantissa, roundedDecimals)
@@ -683,6 +683,7 @@ public class Decimal : Number, Comparable<Decimal> {
         internal var autoRounding: Rounding = Rounding(MAX_DECIMAL_PLACES, RoundingMode.HALF_UP)
         internal val noRounding: Rounding = Rounding(MAX_DECIMAL_PLACES, RoundingMode.HALF_UP)
         internal var autoLocale: Locale = Locale(null, '.',0)
+        internal val noLocale: Locale = Locale(null, '.',0)
 
         // for automatic rounding
         //internal var autoRoundingConfig.decimalPlaces: Int = MAX_DECIMAL_PLACES /* 0 - 15 */

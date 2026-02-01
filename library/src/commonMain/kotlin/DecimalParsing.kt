@@ -49,13 +49,32 @@ private fun IsMantissaStringTooLong(mantissaString: String): Boolean {
 }
 
 
-internal fun mkDecimalParseOrNull (rawNumberString: String, rounding: Decimal.Rounding, orNull: Boolean) : Pair <Long, Int>? {
-    val cleanedNumberString = rawNumberString.replace("_","").replace(" ","")
+internal fun mkDecimalParseOrNull (rawNumberString: String, rounding: Decimal.Rounding, locale: Decimal.Locale, orNull: Boolean) : Pair <Long, Int>? {
+    var numberString = rawNumberString
+    // filter some commonly embedded chars meant for readability
+    if (locale.decimalSeparator != '_') {
+        numberString = numberString.filterNot { it == '_'}
+    }
+    if (locale.decimalSeparator != ' ') {
+        numberString = numberString.filterNot { it == ' '}
+    }
+
+    val isScientificString = numberString.contains('E', true)
+    if ((!isScientificString) || (!(numberString.contains('.')))) {
+        // this is a decimal string, which must be translated from local to normalized
+        // or a scientific string, which we only must translate if there is no decimal point
+        if (locale.groupingSeparator != null) {
+            numberString = numberString.filterNot { it == locale.groupingSeparator}
+        }
+        if (locale.decimalSeparator != '.') {
+            numberString = numberString.replace(locale.decimalSeparator, '.')
+        }
+    }
 
     val decimalNumberPattern = """(?<prefix>[+-])?(?<integer>[+-]?\d*)(?:\.(?<fraction>\d*))?(?:[Ee](?<exponent>[+-]?\d+))?"""
     val decimalNumberRegex = Regex(decimalNumberPattern)
 
-    val match = decimalNumberRegex.matchEntire(cleanedNumberString)
+    val match = decimalNumberRegex.matchEntire(numberString)
 
     if (match == null) {
         if (orNull) return null

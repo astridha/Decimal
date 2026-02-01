@@ -227,13 +227,18 @@ class DecimalCoreTest {
             Decimal("123456.1234567800000000").toString(),
             "stringConstructor: \"123456.1234567800000000\", with rounding"
         )
-        Decimal.setMaxDecimalPlaces(3)
+       Decimal.setRounding(Decimal.Rounding(3))
         assertEquals(
             "123456.123",
             Decimal("123456.1234567890123456").toString(),
             "stringConstructor: \"123456.1234567890123456\", with rounding to 3 dplc"
         )
-        Decimal.setMaxDecimalPlaces(15)
+        Decimal.setRounding(Decimal.Rounding(15))
+        assertEquals(
+            "123456.123",
+            Decimal("123..456,123",Decimal.Locale('.',',', 5)).toString(),
+            "stringConstructor: \"123..456,123\", with grouping=dot and decimal=comma"
+        )
         assertFailsWith(
             ArithmeticException::class,
             "stringConstructor: \"123456.1234567890123456\", with rounding to 15 dplc",
