@@ -37,6 +37,30 @@ Better use: *"15.000000000000001".Dc*. This avoids the Float/Double problems.
 Use arithmetical operators conveniently, like  
 *(7.5.Dc + 8.5.Dc) / 3.Dc*
 
+### Configuring before use
+
+As the **Decimal** type shall integrate seamlessly into the project, two aspects must be configured initially.
+
+#### The automatic rounding
+This is necessary to fit the number within the overall maximum of 17 to 18 places while also maintaining the
+decimal places that are required.  
+A class defines the required decimal places and the rounding mode that will be applied to ensure them.  
+``` public class Decimal.Rounding(decimalPlaces: Int, roundingMode: Decimal.RoundingMode) ```  
+Configuring is done with a setRounding() call:  
+``` Decimal.setRounding (rounding: Decimal.Rounding) ```   
+See below for details.
+
+#### The local formatting for input and output
+When parsing or printing the **Decimal** type with ``` .toString()``` , a local formatting can automatically be applied.
+
+It describes an optional grouping (i.e., thousands) separator, the decimal separator
+and the minimum number of decimal places that will be printed.
+A class describing the local formatting can be used for configuring this.  
+``` public class Decimal.Locale(groupSeparator: Char?, decimalSeparator: Char, minDecimalPlaces: Int) ```  
+Configuring is done with a setLocale() call:  
+``` Decimal.setLocale (locale: Decimal.Locale) ```   
+
+---
 
 
 ### Configuring the default decimal places and rounding modes
@@ -65,7 +89,7 @@ sets the way in which every Decimal will be rounded to automatically after each 
 
 The supported range is from 0 to 15.   
 15 is the default value and the maximum supported precision.  
-``` kotlin setRounding (2, HALF_UP)```  means that all Decimals will be rounded to two decimal places.  
+``` kotlin setRounding (2, HALF_UP)```  means that all Decimals will be rounded to two decimal places.    
 ``` kotlin setRounding (0, HALF_EVEN)```  means that only whole numbers will be generated, and will be rounded to the next even number.
 
 #### setLocale (groupingSeparator: Char?, decimalSeparator: Char, minDecimalPlaces: Int)
