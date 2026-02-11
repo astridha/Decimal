@@ -29,7 +29,7 @@ internal fun getRoundingModeSpecificCalculation(roundingMode: Decimal.RoundingMo
     }
 }
 
-// Cannot assume that raw values were previously stored in a Decimal, they may come from parsing!
+// Cannot assume that raw values were previously stored in a Decimal. Instead, hey may come from parsing!
 // So the raw mantissa might be a full Long that will not fit into Decimal
 // also, the raw decimal places might be more than MAX_DECIMAL_PLACES
 // desiredDecimals can be below 0, which means that the lowest pre-comma places will also be rounded to 0

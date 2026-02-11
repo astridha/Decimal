@@ -37,6 +37,13 @@ Better use: *"15.000000000000001".Dc*. This avoids the Float/Double problems.
 Use arithmetical operators conveniently, like  
 *(7.5.Dc + 8.5.Dc) / 3.Dc*
 
+
+## How to start
+Before using, initialize  \
+``` Decimal.setRounding (rounding: Decimal.Rounding = Decimal.Rounding(2, Decimal.RoundingMode.HALF_UP)) ```
+ \
+``` Decimal.setLocale (locale: Decimal.Locale = Decimal.Locale(null, '.', 2)) ```
+
 ### Configuring before use
 
 As the **Decimal** type shall integrate seamlessly into the project, two aspects must be configured initially.

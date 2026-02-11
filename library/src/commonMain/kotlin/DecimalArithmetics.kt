@@ -161,7 +161,11 @@ internal class DecimalArithmetics {
             if (willOverflowMantissa(resultMantissa, resultDecimals, rounding)) {
                 return generateErrorDecimal(Decimal.Error.MULTIPLY_OVERFLOW, "$this * $other = ${toRawString(resultMantissa, resultDecimals)} result does not fit into Decimal")
             }
-            val (roundedMantissa, roundedDecimals) = roundWithMode(resultMantissa, resultDecimals,rounding)
+            val (roundedMantissa, roundedDecimals) = roundWithMode(
+                resultMantissa,
+                resultDecimals,
+                rounding
+            )
             return Decimal(roundedMantissa, roundedDecimals)
         }
 
