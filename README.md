@@ -11,7 +11,7 @@ Comparing like **<**, **>**, **<=**, **>=**, or **==** is also supported.
 
 ## Characteristics   
 
-The footprint of a **Decimal** instance corresponds to the 64bit **Long** size. It consists of a 60-bit mantissa and a 4-bit exponent.
+The footprint of a **Decimal** instance corresponds to the 128bit size. It consists of a 120-bit mantissa and a 8-bit exponent.
 
 Its mantissa range is from -576_460_752_303_423_487 to +576_460_752_303_423_487.  
 
@@ -85,7 +85,7 @@ Configuring is done with a setLocale() call:
 ### Configuring the default decimal places and rounding modes
 
 #### The class ```Rounding``` contains details about desired decimal places and how to limit them
-The default (and maximum supported) number of decimal places is 15. This will not be reserved for decimal places, but might be reached quickly through various subsequent arithmetical calculations.  
+The default (and maximum supported) number of decimal places is 127. This will not be reserved for decimal places, but might be reached quickly through various subsequent arithmetical calculations.  
 But as the width of the decimal's mantissa is limited to overall 17–18 digits, an overflow is imminent. Therefore, it is preferable to limit the share for decimal places that are really needed. E.g., for currencies this may be two digits.  
 The limiting is done by automatically rounding the calculated value back to the desired decimal places with each calculaton.
 
