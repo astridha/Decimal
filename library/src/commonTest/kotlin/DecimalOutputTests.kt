@@ -1,4 +1,4 @@
-package io.github.astridha.smalldecimal
+package io.github.astridha.decimal
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

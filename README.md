@@ -4,7 +4,7 @@ This platform-independent library offers a fixed-size **Decimal** class with sma
 
 Made for Kotlin Multiplatform.
 
-The **Decimal** class implements Number and Comparable interfaces, with a -Bit footprint.   
+The **Decimal** class implements Number and Comparable interfaces, with a 128-Bit footprint.   
 It supports math binary operators **+**, **-**, <b>*</b>, **/**, and **%**, as well as unary operators **+**, **-**, **++**, and **--**.  
 Comparing like **<**, **>**, **<=**, **>=**, or **==** is also supported.
 
@@ -182,13 +182,13 @@ Dependencies in build.gradle.kts:
 ``` kotlin
 dependencies {
     // ...
-    implementation("io.github.astridha:smalldecimal:0.8.5")
+    implementation("io.github.astridha:decimal:0.8.5")
 }
 ```
 
 Import in source files:
 ``` kotlin
-import io.github.astridha.smalldecimal.*
+import io.github.astridha.decimal.*
 ```
 
 -----

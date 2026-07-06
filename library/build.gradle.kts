@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "io.github.astridha"
-// artifact="smalldecimal"
+// artifact="decimal"
 version = "0.8.6"
 
 
@@ -21,7 +21,7 @@ kotlin {
     jvm()
 
      android {
-        namespace = "io.github.astridha.smalldecimal"
+        namespace = "io.github.astridha.decimal"
         // defined in libs.versions.toml:
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
@@ -85,7 +85,7 @@ mavenPublishing {
     // remove comment slashes below for really publishing to maven central!
     signAllPublications()
 
-    coordinates(group.toString(), "smalldecimal", version.toString())
+    coordinates(group.toString(), "decimal", version.toString())
 
     pom {
         name = "KMP Small Decimal Library"
@@ -93,7 +93,7 @@ mavenPublishing {
                 "Offers 17-18 decimal digits with up to 15 decimal places. " +
                 "Fully convenient implementation with arithmetical operators and comparators."
         inceptionYear = "2026"
-        url = "https://github.com/astridha/smalldecimal/"
+        url = "https://github.com/astridha/decimal/"
         licenses {
             license {
                 name = "MIT License"
@@ -112,9 +112,9 @@ mavenPublishing {
             }
         }
         scm {
-            url = "https://github.com/astridha/smalldecimal/"
-            connection = "scm:git:git://github.com/astridha/smalldecimal.git"
-            developerConnection = "scm:git:ssh://git@github.com/astridha/smalldecimal/"
+            url = "https://github.com/astridha/decimal/"
+            connection = "scm:git:git://github.com/astridha/decimal.git"
+            developerConnection = "scm:git:ssh://git@github.com/astridha/decimal/"
         }
     }
 }

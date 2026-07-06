@@ -1,8 +1,8 @@
-package io.github.astridha.smalldecimal
+package io.github.astridha.decimal
 
 import kotlin.math.min
-import io.github.astridha.smalldecimal.Decimal.Companion.generateErrorCode
-import io.github.astridha.smalldecimal.Decimal.Companion.MAX_LONG_SIGNIFICANTS
+import io.github.astridha.decimal.Decimal.Companion.generateErrorCode
+import io.github.astridha.decimal.Decimal.Companion.MAX_LONG_SIGNIFICANTS
 //import System
 
 private fun numDisposableDecimalPlaces(mantissaString: String, decimals:Int): Int {

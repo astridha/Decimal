@@ -1,7 +1,7 @@
-package io.github.astridha.smalldecimal
+package io.github.astridha.decimal
 
-import io.github.astridha.smalldecimal.Decimal.Rounding
-import io.github.astridha.smalldecimal.DecimalArithmetics.Companion.equalizeDecimals
+import io.github.astridha.decimal.Decimal.Rounding
+import io.github.astridha.decimal.DecimalArithmetics.Companion.equalizeDecimals
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmName
 import kotlin.jvm.JvmOverloads

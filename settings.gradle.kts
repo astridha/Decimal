@@ -1,4 +1,4 @@
-rootProject.name = "io.github.astridha.smalldecimal"
+rootProject.name = "io.github.astridha.decimal"
 include(":library")
 
 pluginManagement {

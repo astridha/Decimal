@@ -1,11 +1,11 @@
-package io.github.astridha.smalldecimal
+package io.github.astridha.decimal
 
-import io.github.astridha.smalldecimal.Decimal.Companion.MAX_DECIMAL_SIGNIFICANTS
-import io.github.astridha.smalldecimal.Decimal.Companion.MAX_MANTISSA_VALUE
-import io.github.astridha.smalldecimal.Decimal.Companion.autoRounding
-// import io.github.astridha.smalldecimal.Decimal.Companion.autoRoundingConfig.roundingMode
-import io.github.astridha.smalldecimal.Decimal.Companion.generateErrorDecimal
-import io.github.astridha.smalldecimal.Decimal.Companion.toRawString
+import io.github.astridha.decimal.Decimal.Companion.MAX_DECIMAL_SIGNIFICANTS
+import io.github.astridha.decimal.Decimal.Companion.MAX_MANTISSA_VALUE
+import io.github.astridha.decimal.Decimal.Companion.autoRounding
+// import io.github.astridha.decimal.Decimal.Companion.autoRoundingConfig.roundingMode
+import io.github.astridha.decimal.Decimal.Companion.generateErrorDecimal
+import io.github.astridha.decimal.Decimal.Companion.toRawString
 import kotlin.math.abs
 import kotlin.math.sign
 

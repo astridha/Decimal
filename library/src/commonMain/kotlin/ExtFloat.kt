@@ -1,5 +1,5 @@
 @file:JvmName("Float")
-package io.github.astridha.smalldecimal
+package io.github.astridha.decimal
 
 import kotlin.jvm.JvmName
 
