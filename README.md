@@ -20,8 +20,6 @@ So, representable values of 92 trillions with 5 decimal places are supported.
 These characteristics are probably sufficient for most day-to-day requirements.
 
 
-
-
 ### Convenient usage
 
 #### No verbose type or class declaration
@@ -59,7 +57,7 @@ A data class describing the local formatting can be used for configuring this.
 public data class Decimal.Locale(groupSeparator: Char?,ar, minDecimalPlaces: Int)
 ```  
 Configuring is done with a setLocale() call:  
-``` Decimal.setLocale (locale: Decimal.Locale) ```   
+``` Decimal.initLocale (locale: Decimal.Locale) ```   
 
 ---
 
@@ -76,11 +74,11 @@ If there are more decimal places than ```minDecimalPlaces```, they are all shown
 ``` kotlin initLocale (Decimal.Locale(',', '.', 2))```  means that the grouping separator is a comma, decimal point is a dot, and at least two decimal places will be shown.  
 ``` kotlin initLocale (Decimal.Locale(null, '.', 0))```  means that no grouping separator is used, the decimal point is a comma, and only non-zero decimal places will be shown.
 
-### Applying formatting explicitly
+#### Applying formatting explicitly
 
-A differently formatted string can be generated with
-``` kotlin Decimal.Format (Decimal.Locale(',', '.', 2)) : String``` 
-like 
+A differently formatted string can be generated with  
+``` kotlin Decimal.Format (Decimal.Locale(',', '.', 2)): String```  
+like   
 ``` kotlin mystring = myvalue.Format (Decimal.Locale('\'', '.', 2))``` 
 
 
@@ -115,7 +113,7 @@ UNNECESSARY
 The automatic rounding mode, when unchanged, is *HALF_UP* (commercial rounding).
 
 
-#### Applying rounding explicitly
+### Applying rounding explicitly
 
 The rounding modes can be explicitly used in scale():
 ``` kotlin
