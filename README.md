@@ -1,21 +1,21 @@
-# A Convenient Decimal Type for KMP Multiplatform
+# A Small Fixed-Comma Decimal Type for KMP Multiplatform
 
-This platform-independent library offers a fixed-size **Decimal** class with small exponents and a predictive footprint.  
+This platform-independent library offers a fixed-size **Decimal** class with 5 decial places and a predictive footprint of 64 Bit.  
 
 Made for Kotlin Multiplatform.
 
-The **Decimal** class implements Number and Comparable interfaces, with a 128-Bit footprint.   
+The **Decimal** class implements Number and Comparable interfaces, with a 64-Bit footprint.   
 It supports math binary operators **+**, **-**, <b>*</b>, **/**, and **%**, as well as unary operators **+**, **-**, **++**, and **--**.  
 Comparing like **<**, **>**, **<=**, **>=**, or **==** is also supported.
 
 
 ## Characteristics   
 
-The footprint of a **Decimal** instance corresponds to the 128bit size. It consists of a 120-bit mantissa and a 8-bit exponent.
+The footprint of a **Decimal** instance corresponds to the 64 bit size. It has fixed 5 decimal places, which are sdufficient for most day-to-day requirements.
 
-Its mantissa range is from -576_460_752_303_423_487 to +576_460_752_303_423_487.  
+Its mantissa range is from -9_223_372_036_854_775_808 to +9_223_372_036_854_775_807.  
 
-So, 17 to 18 significant decimal digits with 0 to 15 decimal places are supported.
+So, 19 significant decimal digits are supported.
 
 
 
@@ -25,14 +25,11 @@ So, 17 to 18 significant decimal digits with 0 to 15 decimal places are supporte
 #### No verbose type or class declaration
 
 The Decimal type can be used much idiomatically like any other numeric type, just with the extension *".Dc"*.  
-Like *5.Dc* or *17.48.Dc*.  
-Or use a numeric String constructor like *"1228573.68".Dc* or *"12_28_573.68".Dc*.
+Simply use this like *5.Dc* or *17.48.Dc*.  
+Or use a numeric String constructor like *"1228573.68".Dc* or *"12_28_573.68".Dc*.  
+The latter avoids the Float/Double inaccuracy problems which might arise with big numbers.
 
-When giving many decimal places, e.g. *15.000000000000001.Dc* (15 decimal places), rounding errors might occur  
-because of the inaccuracy and rounding problems of Float and Double numbers.  
-Better use: *"15.000000000000001".Dc*. This avoids the Float/Double problems.
-
-#### Arithmetical Operators are working
+#### Common Arithmetical Operators are working
 
 Use arithmetical operators conveniently, like  
 *(7.5.Dc + 8.5.Dc) / 3.Dc*
@@ -42,11 +39,11 @@ Use arithmetical operators conveniently, like
 ### Configure before use
 Before using, initialize the automatic rounding behavior as well as the standard output format.
 ``` kotlin
-Decimal.initRounding(Decimal.Rounding(2, Decimal.RoundingMode.HALF_UP))
+Decimal.setRounding(Decimal.RoundingMode.HALF_UP)
 
 Decimal.initLocale(Decimal.Locale(null, '.', 2)) 
 ```
-This example will configure the rounding mode to automatic commercial rounding with two decimal places.   
+This example will configure the rounding mode to automatic commercial rounding.   
 Moreover, using toString() or in String interpolation, all Decimals will be printed without a thousands separator, the decimal separator is a dot, and 
 the fractional part is shown with at least two decimal places.
 
@@ -82,34 +79,7 @@ Configuring is done with a setLocale() call:
 ---
 
 
-### Configuring the default decimal places and rounding modes
-
-#### The class ```Rounding``` contains details about desired decimal places and how to limit them
-The default (and maximum supported) number of decimal places is 127. This will not be reserved for decimal places, but might be reached quickly through various subsequent arithmetical calculations.  
-But as the width of the decimal's mantissa is limited to overall 17–18 digits, an overflow is imminent. Therefore, it is preferable to limit the share for decimal places that are really needed. E.g., for currencies this may be two digits.  
-The limiting is done by automatically rounding the calculated value back to the desired decimal places with each calculaton.
-
-``` kotlin
-public class Rounding(decimalPlaces: Int, roundingMode: Decimal.RoundingMode)
-```
-This class denotes the maximum decimal places that all **Decimal**s shall automatically be rounded to (if necessary), as well as the rounding mode that will be used to achieve this.  
-For the available rounding modes see below.
-
-``` Rounding (2, Decimal.RoundingMode.HALF_UP)```  means that all Decimals will be rounded to two decimal places.  
-``` Rounding (0, Decimal.RoundingMode.HALF_EVEN)```  means that only whole numbers will be generated, and will be rounded to the next even number.
-
-``` kotlin
-val roundingPreference: Rounding = Rounding(2,RoundingMode.HALF_EVEN)
-```
-
-
-#### Setting the automatic mode with ```initRounding (rounding: Rounding)```
-sets the way in which every Decimal will be rounded to automatically after each arithmetic calculation.  
-
-The supported range is from 0 to 15.   
-15 is the default value and the maximum supported precision.  
-``` initRounding (2, HALF_UP)```  means that all Decimals will be rounded to two decimal places.    
-``` initRounding (0, HALF_EVEN)```  means that only whole numbers will be generated, and will be rounded to the next even number.
+### Setting local Decimal formatting
 
 #### initLocale (groupingSeparator: Char?, decimalSeparator: Char, minDecimalPlaces: Int)
 Configures how the Decimal will be formatted to with  **toString()**.
