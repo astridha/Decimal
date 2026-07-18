@@ -5,11 +5,11 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.kotlin.multiplatform.library)
 
-    id("com.vanniktech.maven.publish") version "0.36.0"
+    id("com.vanniktech.maven.publish") version "0.37.0"
 }
 
 group = "io.github.astridha"
-// artifact="decimal"
+// artifact="fix5decimal"
 version = "0.8.6"
 
 
@@ -21,7 +21,7 @@ kotlin {
     jvm()
 
      android {
-        namespace = "io.github.astridha.decimal"
+        namespace = "io.github.astridha.fix5decimal"
         // defined in libs.versions.toml:
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()

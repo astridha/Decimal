@@ -1,15 +1,15 @@
-package io.github.astridha.decimal
+package io.github.astridha.fix5decimal
 
-import io.github.astridha.decimal.Decimal.Companion.MAX_DECIMAL_SIGNIFICANTS
-import io.github.astridha.decimal.Decimal.Companion.MAX_MANTISSA_VALUE
-import io.github.astridha.decimal.Decimal.Companion.autoRounding
-// import io.github.astridha.decimal.Decimal.Companion.autoRoundingConfig.roundingMode
-import io.github.astridha.decimal.Decimal.Companion.generateErrorDecimal
-import io.github.astridha.decimal.Decimal.Companion.toRawString
+import io.github.astridha.fix5decimal.Decimal.Companion.MAX_DECIMAL_SIGNIFICANTS
+import io.github.astridha.fix5decimal.Decimal.Companion.MAX_MANTISSA_VALUE
+import io.github.astridha.fix5decimal.Decimal.Companion.autoRounding
+// import io.github.astridha.fix5decimal.Decimal.Companion.autoRoundingConfig.roundingMode
+import io.github.astridha.fix5decimal.Decimal.Companion.generateErrorDecimal
+import io.github.astridha.fix5decimal.Decimal.Companion.toRawString
 import kotlin.math.abs
 import kotlin.math.sign
 
-internal class DecimalArithmetics {
+internal class `_DecimalArithmetics_.kt_` {
 
     companion object {
 

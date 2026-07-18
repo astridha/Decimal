@@ -1,5 +1,5 @@
 @file:JvmName("UShort")
-package io.github.astridha.decimal
+package io.github.astridha.fix5decimal
 
 import kotlin.jvm.JvmName
 

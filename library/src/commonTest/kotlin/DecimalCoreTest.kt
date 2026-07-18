@@ -1,6 +1,6 @@
-package io.github.astridha.decimal
+package io.github.astridha.fix5decimal
 
-import io.github.astridha.decimal.*
+import io.github.astridha.fix5decimal.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
