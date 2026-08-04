@@ -4,8 +4,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.kotlin.multiplatform.library)
-
-    id("com.vanniktech.maven.publish") version "0.37.0"
+    alias(libs.plugins.vanniktech.mavenPublish)
 }
 
 group = "io.github.astridha"
@@ -48,7 +47,7 @@ kotlin {
     linuxArm64()
 
     mingwX64()
-    macosX64()
+    // macosX64()
     macosArm64()
 
     @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)

@@ -37,7 +37,7 @@ Use arithmetical operators conveniently, like
 ## How to start
 
 ### Configure before use
-Before using, initialize the the standard output format as well as the automatic rounding behavior.
+Before using, initialize the standard output format as well as the automatic rounding behavior.
 ``` kotlin
 Decimal.initLocale(Decimal.Locale(null, '.', 2)) 
 
