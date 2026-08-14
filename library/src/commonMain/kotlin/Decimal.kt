@@ -58,15 +58,16 @@ public class Decimal : Number, Comparable<Decimal> {
 
         val isScientificString = numberString.contains('E', true)
         if ((!isScientificString) || (!(numberString.contains('.')))) {
-            // this is a decimal string, which must be translated from local to normalized
-            // or a scientific string, which we only must translate if there is no decimal point
-            if (locale.groupingSeparator != null) numberString =
-                numberString.filterNot { it == locale.groupingSeparator }
+            // this is either a decimal string, which must always be translated from local to normalized,
+            // or a scientific string, which we only can translate if it has no period point.
+            // (as scientific strings might not follow the local convention and still use period decimal point!)
+            if (locale.groupingSeparator != null) numberString = numberString.filterNot { it == locale.groupingSeparator }
             if (locale.decimalSeparator != '.') numberString = numberString.replace(locale.decimalSeparator, '.')
 
         }
         return numberString
     }
+
 
     internal fun decimalParseOrNull(
         rawNumberString: String,
@@ -121,7 +122,7 @@ public class Decimal : Number, Comparable<Decimal> {
         if (mantissaString in listOf("+", "- ", "")) mantissaString += "0"
         var mantissa: Long = mantissaString.toLong()
 
-        // only simple commercial rounding for now, perhaps extend later
+        // only simple commercial rounding for now, perhaps consider rounding mode later
         if (lastDigit > '4') {
             roundOffset = if (mantissa < 0) -1 else 1
         }
@@ -133,24 +134,12 @@ public class Decimal : Number, Comparable<Decimal> {
     @Throws(NumberFormatException::class, ArithmeticException::class)
     public constructor (
         rawNumberString: String,
-        locale: Locale = autoLocale,
-        omitRounding: Boolean = false
+        locale: Locale = autoLocale
     ) { // or explicit RoundingMode?
-        val roundingConfig = if (omitRounding) noRoundingMode; else autoRoundingMode
-        val parsedDecimalPair: Pair<Long, Int>? =
-            mkDecimalParseOrNull(rawNumberString, roundingConfig.Rounding, locale, false)
-        if (parsedDecimalPair != null) {
-            if (!isError(parsedDecimalPair.first, parsedDecimalPair.second)) {
-                val (roundedMantissa, roundedDecimals) = roundWithMode(
-                    parsedDecimalPair.first,
-                    parsedDecimalPair.second,
-                    roundingConfig
-                )
-                decimal64 = pack64(roundedMantissa, roundedDecimals)
-            } else {
-                decimal64 = pack64(parsedDecimalPair.first, parsedDecimalPair.second)
-            }
-        } else {
+         val parsedMantissa: Long? = decimalParseOrNull(rawNumberString, autoRoundingMode, locale)
+        if (parsedMantissa != null) {
+            decimal64 = parsedMantissa
+         } else {
             // no exception. this branch won't happen because null was not allowed
             decimal64 = Decimal.DECIMAL_NAN_VALUE
         }
@@ -158,16 +147,10 @@ public class Decimal : Number, Comparable<Decimal> {
 
 
     @Throws(ArithmeticException::class)
-    public constructor (float: Float) : this(float.toString(), noLocale, false)
+    public constructor (float: Float) : this(float.toString(), noLocale)
 
     @Throws(ArithmeticException::class)
-    public constructor (float: Float, omitRounding: Boolean) : this(float.toString(), noLocale, omitRounding)
-
-    @Throws(ArithmeticException::class)
-    public constructor (double: Double) : this(double.toString(), noLocale, false)
-
-    @Throws(ArithmeticException::class)
-    public constructor (double: Double, omitRounding: Boolean) : this(double.toString(), noLocale, omitRounding)
+    public constructor (double: Double) : this(double.toString(), noLocale)
 
     public constructor (other: Decimal) {
         decimal64 = other.decimal64   // or: clone()? difference?
@@ -618,7 +601,7 @@ public class Decimal : Number, Comparable<Decimal> {
     public fun toRawString(): String {
         if (isError()) return DECIMAL_NAN_AS_STRING
         val (mantissa, decimals) = unpack64()
-        return toRawString(mantissa, decimals)
+        return toRawString(mantissa)
     }
 
     public fun toScientificString(): String {
@@ -640,6 +623,7 @@ public class Decimal : Number, Comparable<Decimal> {
         val adjustedExp = (decimalString.count() - 1) - decimals
         if (decimalString.count() > 1) decimalString =
             decimalString.take(1) + '.' + decimalString.substring(1).trimEnd('0')
+
 
         return prefix + decimalString + 'E' + adjustedExp.toString(10)
     }
@@ -764,7 +748,7 @@ public class Decimal : Number, Comparable<Decimal> {
 
 
         internal fun mkDecimalOrNull(numberString: String, locale: Locale = autoLocale): Decimal? {
-            val decimalPair: Pair<Long, Int>? = mkDecimalParseOrNull(numberString, autoRounding, locale, true)
+            val decimalPair: Pair<Long, Int>? = decimalParseOrNull(numberString, RoundingMode.DOWN, locale)
             return if (decimalPair != null) {
                 val (roundedMantissa, roundedDecimals) = roundWithMode(
                     decimalPair.first,
@@ -833,9 +817,12 @@ public class Decimal : Number, Comparable<Decimal> {
         public fun getThrowOnErrors(): Boolean = shallThrowOnError
 
         internal var autoRoundingMode: RoundingMode = RoundingMode.HALF_UP
-        internal var noRoundingMode: RoundingMode = RoundingMode.HALF_DOWN // just cut?
         internal var autoDecimalPlaces: Int = FIX_DECIMAL_PLACES
+
+        // for parsing and printing in local format
         internal var autoLocale: Locale = Locale(null, '.', 0)
+
+        // for parsing in Float and Double constructors (via string constructor)
         internal val noLocale: Locale = Locale(null, '.', 0)
 
         @JvmStatic
@@ -847,19 +834,10 @@ public class Decimal : Number, Comparable<Decimal> {
         //internal var autoRoundingConfig.decimalPlaces: Int = MAX_DECIMAL_PLACES /* 0 - 15 */
 
         @JvmStatic
-        public fun initRounding(decimalPlaces: Int, roundingMode: RoundingMode) {
-            autoDecimalPlaces = when {
-                (decimalPlaces > FIX_DECIMAL_PLACES) -> FIX_DECIMAL_PLACES
-                (decimalPlaces < 0) -> 0
-                else -> decimalPlaces
-            }
+        public fun initRoundingMode(roundingMode: RoundingMode) {
             autoRoundingMode = roundingMode
         }
 
-        @JvmStatic
-        public fun initRounding(rounding: Rounding) {
-            initRounding(autoDecimalPlaces, rounding.roundingMode)
-        }
 
         //@JvmField
         @get:JvmName("roundingMode")
@@ -867,37 +845,18 @@ public class Decimal : Number, Comparable<Decimal> {
             //get() = autoRounding.roundingMode
             private set
 
-        //@JvmField
-        @get:JvmName("roundingDecimalPlaces")
-        public var roundingDecimalPlaces: Int = autoDecimalPlaces
-            //get() = autoRounding.decimalPlaces
-            private set
-
-        @JvmStatic
-        public fun getRoundingDecimalPlaces(): Int = autoDecimalPlaces
 
         @JvmStatic
         public fun getRoundingMode(): RoundingMode = autoRoundingMode
 
-        /*
-        @JvmStatic public fun setRoundingDecimalPlaces(decimalPlaces: Int) {
-            initRounding(decimalPlaces, autoRounding.roundingMode)
-        }
-        @JvmStatic public fun setRoundingMode(mode: RoundingMode) {
-            initRounding(autoRounding.decimalPlaces, mode)
-        }
-        */
 
         // private var autoFormatString: String = "#,###,###,##0.00"
         // ??? important for India: lakh/crore system? otherwise toFormattedString() is sufficient
 
         /***************************  Simple output core routine   ***************************/
 
-        internal fun toRawString(mantissa: Long, decimals: Int): String {
-            if (mantissa == 0L) {
-                if (decimals == 0) return "0"
-                return DECIMAL_NAN_AS_STRING
-            }
+        internal fun toRawString(mantissa: Long): String { // no local, decimals cut 0!
+            if (mantissa == DECIMAL_NAN_VALUE) return DECIMAL_NAN_AS_STRING
             var decimalString: String
             val prefix: String
             when {
@@ -910,14 +869,16 @@ public class Decimal : Number, Comparable<Decimal> {
                 }
             }
 
-            if (decimals > 0) { // decimal digits exist, insert a dot
-                var missingDecimals = decimalString.count() - decimals
-                if (missingDecimals <= 0) { // more than significant digits! prepend zeros!
-                    decimalString = "0" + "0".repeat(0 - missingDecimals) + decimalString
-                    missingDecimals = 1
-                }
-                decimalString = decimalString.take(missingDecimals) + '.' + decimalString.substring(missingDecimals)
+            var missingDecimals = decimalString.count() - FIX_DECIMAL_PLACES
+            if (missingDecimals <= 0) { // more than significant digits! prepend zeros!
+                decimalString = "0" + "0".repeat(0 - missingDecimals) + decimalString
+                missingDecimals = 1
             }
+            decimalString = decimalString.take(missingDecimals) + '.' + decimalString.substring(missingDecimals)
+
+            decimalString = decimalString.trimEnd('0').trimEnd('.')
+
+
             return prefix + decimalString
         }
 
