@@ -35,100 +35,6 @@ public class Decimal : Number, Comparable<Decimal> {
 
     /***********************  Secondary Constructors  ************************/
 
-    private fun IsMantissaStringTooLong(mantissaString: String): Boolean {
-        //  Calculates whether mantissa will fit into Long
-        val mantissaLength = mantissaString.length
-        if (mantissaLength > Decimal.MAX_LONG_SIGNIFICANTS) {
-            return true
-        }
-        if ((mantissaLength == Decimal.MAX_LONG_SIGNIFICANTS)
-            and (mantissaString.compareTo(Decimal.MAX_LONG_VALUE_AS_STRING) > 0)
-        ) {
-            return true
-        }
-        return false
-    }
-
-    private fun convertToNormalizedNumberString(rawNumberString: String, locale: Decimal.Locale): String {
-        // in decimal strings, change local decimal separator to '.' and remove grouping separator completely
-        var numberString = rawNumberString
-        // filter some commonly embedded chars that were inserted for readability
-        if (locale.decimalSeparator != '_') numberString = numberString.filterNot { it == '_' }
-        if (locale.decimalSeparator != ' ') numberString = numberString.filterNot { it == ' ' }
-
-        val isScientificString = numberString.contains('E', true)
-        if ((!isScientificString) || (!(numberString.contains('.')))) {
-            // this is either a decimal string, which must always be translated from local to normalized,
-            // or a scientific string, which we only can translate if it has no period point.
-            // (as scientific strings might not follow the local convention and still use period decimal point!)
-            if (locale.groupingSeparator != null) numberString = numberString.filterNot { it == locale.groupingSeparator }
-            if (locale.decimalSeparator != '.') numberString = numberString.replace(locale.decimalSeparator, '.')
-
-        }
-        return numberString
-    }
-
-
-    internal fun decimalParseOrNull(
-        rawNumberString: String,
-        roundingMode: Decimal.RoundingMode,
-        locale: Decimal.Locale
-    ): Long? {
-        var numberString = convertToNormalizedNumberString(rawNumberString, locale)
-
-        val decimalNumberPattern =
-            """(?<prefix>[+-])?(?<integer>[+-]?\d*)(?:\.(?<fraction>\d*))?(?:[Ee](?<exponent>[+-]?\d+))?"""
-        val decimalNumberRegex = Regex(decimalNumberPattern)
-        val match = decimalNumberRegex.matchEntire(numberString)
-        if (match == null) {
-            throwError("\"$rawNumberString\" is not a number", true)
-            return null
-        }
-
-        val exponent = (match.groups["exponent"]?.value ?: "0").toInt()
-        val prefixString = match.groups["prefix"]?.value ?: ""
-        val integerString = (match.groups["integer"]?.value ?: "").trimStart('0')
-        val fractionString = (match.groups["fraction"]?.value ?: "").trimEnd('0')
-
-        // parse and toLong() - with simple rounding only place 6
-        // after that we will always have 5 decimal places.
-
-        var decimalPlaces = fractionString.length
-        decimalPlaces -= exponent
-
-        var mantissaString = integerString + fractionString
-
-        var lastDigit: Char = '0'
-        var roundOffset: Int = 0
-
-        // remove disposable places
-
-        if (decimalPlaces < FIX_DECIMAL_PLACES) {
-            mantissaString = mantissaString.padEnd(mantissaString.length + (FIX_DECIMAL_PLACES - decimalPlaces), '0')
-        } else if (decimalPlaces > FIX_DECIMAL_PLACES) {
-            mantissaString = mantissaString.dropLast((decimalPlaces - FIX_DECIMAL_PLACES) - 1)
-            lastDigit = mantissaString.last()
-            mantissaString = mantissaString.dropLast(1)
-        }
-        decimalPlaces = FIX_DECIMAL_PLACES
-
-        // still too long for Long?
-        if (IsMantissaStringTooLong(mantissaString)) {
-            throwError("\"$rawNumberString\" cannot fit into a Decimal", true)
-            return null
-        }
-
-        mantissaString = prefixString + mantissaString
-        if (mantissaString in listOf("+", "- ", "")) mantissaString += "0"
-        var mantissa: Long = mantissaString.toLong()
-
-        // only simple commercial rounding for now, perhaps consider rounding mode later
-        if (lastDigit > '4') {
-            roundOffset = if (mantissa < 0) -1 else 1
-        }
-
-        return mantissa
-    }
 
 
     @Throws(NumberFormatException::class, ArithmeticException::class)
@@ -140,8 +46,8 @@ public class Decimal : Number, Comparable<Decimal> {
         if (parsedMantissa != null) {
             decimal64 = parsedMantissa
          } else {
-            // no exception. this branch won't happen because null was not allowed
-            decimal64 = Decimal.DECIMAL_NAN_VALUE
+            // no additional exception. this branch did already throw
+            decimal64 = Decimal.MANTISSA_NAN_VALUE
         }
     }
 
@@ -167,7 +73,7 @@ public class Decimal : Number, Comparable<Decimal> {
             // a single value will overflow
             throwError("$long cannot fit into a Decimal")
         }
-        decimal64 = pack64(long * FIX_DECIMAL_FACTOR, FIX_DECIMAL_PLACES)
+        decimal64 = normalizeMantissaToFixedDecimalPlaces(long * FIX_DECIMAL_FACTOR, FIX_DECIMAL_PLACES)
     }
 
     // Provide constructors from all other signed types for Kotlin and JVM/Java.
@@ -186,7 +92,7 @@ public class Decimal : Number, Comparable<Decimal> {
         return Pair(decimal64, FIX_DECIMAL_PLACES)
     }
 
-    internal fun pack64(pMantissa: Long, pDecimals: Int): Long {
+    internal fun normalizeMantissaToFixedDecimalPlaces(pMantissa: Long, pDecimals: Int): Long {
         var mantissa = pMantissa
         var decimals = pDecimals
 
@@ -204,11 +110,17 @@ public class Decimal : Number, Comparable<Decimal> {
     }
 
     public fun isNaN(): Boolean {
-        return (decimal64 == DECIMAL_NAN_VALUE)
+        return (decimal64 == MANTISSA_NAN_VALUE)
+    }
+    public fun isInfinite(): Boolean {
+        return ((decimal64 == MANTISSA_POSITIVE_INFINITY_VALUE) || (decimal64 == MANTISSA_NEGATIVE_INFINITY_VALUE))
+    }
+    public fun isFinite(): Boolean {
+        return !((isNaN()) || (isInfinite()))
     }
 
     public fun isError(): Boolean {
-        return isNaN()
+        return !(isFinite())
     }
 
     /*******************  Rounding functions  *********************************/
@@ -219,9 +131,10 @@ public class Decimal : Number, Comparable<Decimal> {
         val (newMantissa, newDecimals) = roundWithMode(
             mantissa,
             decimals,
-            Rounding(desiredDecimals, RoundingMode.CEILING)
+            desiredDecimals,
+            RoundingMode.CEILING
         )
-        return Decimal(newMantissa, if (newMantissa == 0L) 0 else newDecimals)
+        return Decimal(newMantissa, true)
     }
 
     public fun ceil(): Decimal = ceil(0)
@@ -233,9 +146,10 @@ public class Decimal : Number, Comparable<Decimal> {
         val (newMantissa, newDecimals) = roundWithMode(
             mantissa,
             decimals,
-            Rounding(desiredDecimals, RoundingMode.FLOOR)
+            desiredDecimals,
+            RoundingMode.FLOOR
         )
-        return Decimal(newMantissa, if (newMantissa == 0L) 0 else newDecimals)
+        return Decimal(newMantissa, true)
     }
 
     public fun floor(): Decimal = floor(0)
@@ -243,8 +157,13 @@ public class Decimal : Number, Comparable<Decimal> {
     public fun truncate(desiredDecimals: Int): Decimal {
         if (isError()) return clone()
         val (mantissa, decimals) = unpack64()
-        val (newMantissa, newDecimals) = roundWithMode(mantissa, decimals, Rounding(desiredDecimals, RoundingMode.DOWN))
-        return Decimal(newMantissa, if (newMantissa == 0L) 0 else newDecimals)
+        val (newMantissa, newDecimals) = roundWithMode(
+            mantissa,
+            decimals,
+            desiredDecimals,
+            RoundingMode.DOWN
+        )
+        return Decimal(newMantissa, true)
     }
 
     public fun truncate(): Decimal = truncate(0)
@@ -256,9 +175,10 @@ public class Decimal : Number, Comparable<Decimal> {
         val (newMantissa, newDecimals) = roundWithMode(
             mantissa,
             decimals,
-            Rounding(desiredDecimals, RoundingMode.HALF_EVEN)
+            desiredDecimals,
+            RoundingMode.HALF_EVEN
         )
-        return Decimal(newMantissa, if (newMantissa == 0L) 0 else newDecimals)
+        return Decimal(newMantissa, true)
     }
 
     public fun round(): Decimal = round(0)
@@ -269,15 +189,20 @@ public class Decimal : Number, Comparable<Decimal> {
         if (isError()) return clone()
         val (mantissa, decimals) = unpack64()
         val roundingDecimals = min(FIX_DECIMAL_PLACES, desiredDecimals)
-        val (newMantissa, newDecimals) = roundWithMode(mantissa, decimals, Rounding(roundingDecimals, roundingMode))
-        return Decimal(newMantissa, if (newMantissa == 0L) 0 else newDecimals)
+        val (newMantissa, newDecimals) = roundWithMode(
+            mantissa,
+            decimals,
+            roundingDecimals,
+            roundingMode
+        )
+        return Decimal(newMantissa, true)
     }
 
     public fun scale(): Decimal =
-        scale(desiredDecimals = autoRounding.decimalPlaces, roundingMode = autoRounding.roundingMode)
+        scale(desiredDecimals = FIX_DECIMAL_PLACES, roundingMode = autoRoundingMode)
 
-    public fun scale(desiredDecimals: Int): Decimal = scale(desiredDecimals, roundingMode = autoRounding.roundingMode)
-    public fun scale(roundingMode: RoundingMode): Decimal = scale(autoRounding.decimalPlaces, roundingMode)
+    public fun scale(desiredDecimals: Int): Decimal = scale(desiredDecimals, roundingMode = autoRoundingMode)
+    public fun scale(roundingMode: RoundingMode): Decimal = scale(FIX_DECIMAL_PLACES, roundingMode)
 
     /*******************  Operator Overloads  ******************/
 
@@ -311,7 +236,7 @@ public class Decimal : Number, Comparable<Decimal> {
     public operator fun dec(): Decimal {
         if (isNaN()) return clone()
         val decremented_decimal64 = decimal64 - FIX_DECIMAL_FACTOR
-        if ((decremented_decimal64 > decimal64) || (decremented_decimal64 == DECIMAL_NAN_VALUE)) {
+        if ((decremented_decimal64 > decimal64) || (decremented_decimal64 == MANTISSA_NAN_VALUE)) {
             return throwError(" Decrementing $this: result does not fit into Decimal")
         }
         return Decimal(decremented_decimal64, true)
@@ -568,7 +493,7 @@ public class Decimal : Number, Comparable<Decimal> {
         }
         val (mantissa, decimals) = unpack64()
         if (decimals == 0) return mantissa  // nothing to do
-        val (rounded, _) = roundWithMode(mantissa, decimals, Rounding(0, roundingMode))
+        val (rounded, _) = roundWithMode(mantissa, decimals, FIX_DECIMAL_PLACES, autoRoundingMode)
         return rounded
     }
 
@@ -676,8 +601,8 @@ public class Decimal : Number, Comparable<Decimal> {
 
     @JvmRecord
     public data class Rounding(val decimalPlaces: Int, val roundingMode: RoundingMode) {
-        public constructor (decimalPlaces: Int) : this(decimalPlaces, autoRounding.roundingMode)
-        public constructor (roundingMode: RoundingMode) : this(autoRounding.decimalPlaces, roundingMode)
+        public constructor (decimalPlaces: Int) : this(decimalPlaces, autoRoundingMode)
+        public constructor (roundingMode: RoundingMode) : this(FIX_DECIMAL_PLACES, roundingMode)
 
         init {
             require(decimalPlaces >= (0 - FIX_DECIMAL_PLACES)) { "decimal places must be greater or equal -$FIX_DECIMAL_PLACES" }
@@ -748,61 +673,69 @@ public class Decimal : Number, Comparable<Decimal> {
 
 
         internal fun mkDecimalOrNull(numberString: String, locale: Locale = autoLocale): Decimal? {
-            val decimalPair: Pair<Long, Int>? = decimalParseOrNull(numberString, RoundingMode.DOWN, locale)
-            return if (decimalPair != null) {
+            val decimalMantissa: Long? = decimalParseOrNull(numberString, RoundingMode.DOWN, locale)
+             return if (decimalMantissa != null) {
                 val (roundedMantissa, roundedDecimals) = roundWithMode(
-                    decimalPair.first,
-                    decimalPair.second,
-                    autoRounding
+                    decimalMantissa,
+                    FIX_DECIMAL_PLACES,
+                    FIX_DECIMAL_PLACES
                 )
-                Decimal(roundedMantissa, roundedDecimals)
+                Decimal(roundedMantissa, true)
             } else {
                 null
             }
         }
 
 
-        public const val MAX_MANTISSA_VALUE: Long = Long.MAX_VALUE
-        public const val MIN_DECIMAL_LONG_VALUE: Long = Long.MIN_VALUE + 1
-        public const val DECIMAL_NAN_VALUE: Long = Long.MIN_VALUE
-        public const val DECIMAL_NAN_AS_STRING: String = "NOT A NUMBER"
-        public const val DECIMAL_INFINITY_VALUE: Long = Long.MAX_VALUE
-        public const val DECIMAL_INFINITY_AS_STRING: String = "INF"
-        public const val DECIMAL_POSITIVE_INFINITY_VALUE: Long = Long.MAX_VALUE
-        public const val DECIMAL_POSITIVE_INFINITY_AS_STRING: String = "INF"
-        public const val DECIMAL_NEGATIVE_INFINITY_VALUE: Long = Long.MIN_VALUE
-        public const val DECIMAL_NEGATIVE_INFINITY_AS_STRING: String = "-INF"
-        public const val DECIMAL_ZERO_VALUE: Long = 0L
-        public const val DECIMAL_ZERO_AS_STRING: String = "0"
-        public const val DECIMAL_ONE_VALUE: Long = 1L
-        //public const val NOT_A_NUMBER: Long = -576460752303423488L
-
         public const val FIX_DECIMAL_PLACES: Int = 5
         public const val FIX_DECIMAL_FACTOR: Long = 100000
-        public const val FIX_MAX_LONGCONSTRUCTOR: Long = Long.MAX_VALUE / FIX_DECIMAL_FACTOR
 
-        public const val MAX_DECIMAL_SIGNIFICANTS: Int = 14
-        public const val MAX_DECIMAL_MANTISSA_AS_STRING: String = "576460752303423487"
-        public const val MAX_LONG_SIGNIFICANTS: Int = 19
-        public const val SAFE_LONG_SIGNIFICANTS: Int = MAX_LONG_SIGNIFICANTS - 1
-        public const val MAX_LONG_VALUE_AS_STRING: String = "9223372036854775807"
-        public const val MIN_LONG_VALUE_AS_STRING: String = "-9223372036854775807" // reserve ...808 for NAN
+        internal const val MANTISSA_MAX_VALUE: Long = Long.MAX_VALUE-1
+        private const val MANTISSA_MIN_VALUE: Long = Long.MIN_VALUE + 2
+        private const val MANTISSA_NAN_VALUE: Long = Long.MIN_VALUE
+        private const val MANTISSA_POSITIVE_INFINITY_VALUE: Long = Long.MAX_VALUE
+        private const val MANTISSA_NEGATIVE_INFINITY_VALUE: Long = Long.MIN_VALUE + 1
+        private const val MANTISSA_ZERO_VALUE: Long = 0L
+        private const val MANTISSA_ONE_VALUE: Long = FIX_DECIMAL_FACTOR
+
+        private const val FIX_MAX_LONGCONSTRUCTOR: Long = MANTISSA_MAX_VALUE / FIX_DECIMAL_FACTOR
+
+        private const val MAX_DECIMAL_SIGNIFICANTS: Int = 14
+        // public const val MAX_DECIMAL_MANTISSA_AS_STRING: String = "576460752303423486"
+        private const val MAX_LONG_SIGNIFICANTS: Int = 19
+        private const val SAFE_LONG_SIGNIFICANTS: Int = MAX_LONG_SIGNIFICANTS - 1
+        private const val MAX_MANTISSA_AS_STRING: String = "9223372036854775806"
+        private const val MIN_MANTISSA_AS_STRING: String = "-9223372036854775806" // reserve ...808 for NAN and 807 for infinities
+
+        private const val DECIMAL_NAN_AS_STRING: String = "NOT A NUMBER"
+        private const val DECIMAL_POSITIVE_INFINITY_AS_STRING: String = "+INF"
+        private const val DECIMAL_NEGATIVE_INFINITY_AS_STRING: String = "-INF"
+        private const val DECIMAL_ZERO_AS_STRING: String = "0"
+
 
         @JvmField
-        public val ONE: Decimal = Decimal(FIX_DECIMAL_FACTOR, true)
+        public val ONE: Decimal = Decimal(MANTISSA_ONE_VALUE, true)
         //@get:JvmName("ONE")
 
         @JvmField
-        public val NaN: Decimal = Decimal(Long.MIN_VALUE, true)
+        public val NaN: Decimal = Decimal(MANTISSA_NAN_VALUE, true)
         //@get:JvmName("NaN")
 
         @JvmField
-        public val MAX_VALUE: Decimal = Decimal(Long.MAX_VALUE, true)
+        public val MAX_VALUE: Decimal = Decimal(MANTISSA_MAX_VALUE, true)
         //@get:JvmName("MAX_VALUE")
 
         @JvmField
-        public val MIN_VALUE: Decimal = Decimal(Long.MIN_VALUE + 1, true)
+        public val MIN_VALUE: Decimal = Decimal(MANTISSA_MIN_VALUE, true)
         //@get:JvmName("MIN_VALUE")
+
+        @JvmField
+        public val POSITIVE_INFINITY: Decimal = Decimal(MANTISSA_POSITIVE_INFINITY_VALUE, true)
+        //@get:JvmName("POSITIVE_INFINITY")
+
+        @JvmField
+        public val NEGATIVE_INFINITY: Decimal = Decimal(MANTISSA_NEGATIVE_INFINITY_VALUE, true)
+        //@get:JvmName("NEGATIVE_INFINITY")
 
         // static (common) variables and functions
 
@@ -849,6 +782,95 @@ public class Decimal : Number, Comparable<Decimal> {
         @JvmStatic
         public fun getRoundingMode(): RoundingMode = autoRoundingMode
 
+        /**************************   Parsing a string   **************************/
+
+        private fun convertToNormalizedNumberString(rawNumberString: String, locale: Decimal.Locale): String {
+            // in decimal strings, change local decimal separator to '.' and remove grouping separator completely
+            var numberString = rawNumberString
+            // filter some commonly embedded chars that were inserted for readability
+            if (locale.decimalSeparator != '_') numberString = numberString.filterNot { it == '_' }
+            if (locale.decimalSeparator != ' ') numberString = numberString.filterNot { it == ' ' }
+
+            val isScientificString = numberString.contains('E', true)
+            if ((!isScientificString) || (!(numberString.contains('.')))) {
+                // this is either a decimal string, which must always be translated from local to normalized,
+                // or a scientific string, which we only can translate if it has no period point.
+                // (as scientific strings might not follow the local convention and still use period decimal point!)
+                if (locale.groupingSeparator != null) numberString = numberString.filterNot { it == locale.groupingSeparator }
+                if (locale.decimalSeparator != '.') numberString = numberString.replace(locale.decimalSeparator, '.')
+
+            }
+            return numberString
+        }
+
+
+        internal fun decimalParseOrNull(
+            rawNumberString: String,
+            roundingMode: Decimal.RoundingMode,
+            locale: Decimal.Locale
+        ): Long? {
+            var numberString = convertToNormalizedNumberString(rawNumberString, locale)
+
+            val decimalNumberPattern =
+                """(?<prefix>[+-])?(?<integer>[+-]?\d*)(?:\.(?<fraction>\d*))?(?:[Ee](?<exponent>[+-]?\d+))?"""
+            val decimalNumberRegex = Regex(decimalNumberPattern)
+            val match = decimalNumberRegex.matchEntire(numberString)
+            if (match == null) {
+                throwError("\"$rawNumberString\" is not a number", true)
+                return null
+            }
+
+            val exponent = (match.groups["exponent"]?.value ?: "0").toInt()
+            val prefixString = match.groups["prefix"]?.value ?: ""
+            val integerString = (match.groups["integer"]?.value ?: "").trimStart('0')
+            val fractionString = (match.groups["fraction"]?.value ?: "").trimEnd('0')
+
+            // parse and toLong() - with simple rounding only place 6
+            // after that we will always have 5 decimal places.
+
+            var decimalPlaces = fractionString.length
+            decimalPlaces -= exponent
+
+            var mantissaString = integerString + fractionString
+
+            var lastDigit: Char = '0'
+            var roundOffset: Int = 0
+
+            // remove disposable places or add missing places
+
+            if (decimalPlaces < FIX_DECIMAL_PLACES) {
+                mantissaString = mantissaString.padEnd(mantissaString.length + (FIX_DECIMAL_PLACES - decimalPlaces), '0')
+            } else if (decimalPlaces > FIX_DECIMAL_PLACES) {
+                mantissaString = mantissaString.dropLast((decimalPlaces - FIX_DECIMAL_PLACES) - 1)
+                lastDigit = mantissaString.last()
+                mantissaString = mantissaString.dropLast(1)
+            }
+            decimalPlaces = FIX_DECIMAL_PLACES
+
+            // still too long for Long?
+            val mantissaLength = mantissaString.length
+            if ((mantissaLength > Decimal.MAX_LONG_SIGNIFICANTS)
+                || ((mantissaLength == Decimal.MAX_LONG_SIGNIFICANTS)
+                        and (mantissaString.compareTo(Decimal.MAX_MANTISSA_AS_STRING) > 0))
+            ) {
+                throwError("\"$rawNumberString\" cannot fit into a Decimal", true)
+                return null
+            }
+
+            mantissaString = prefixString + mantissaString
+            if (mantissaString in listOf("+", "- ", "")) mantissaString += "0"
+            var mantissa: Long = mantissaString.toLong()
+
+            // only simple commercial rounding for now, perhaps consider rounding mode later
+            if (lastDigit > '4') {
+                roundOffset = if (mantissa < 0) -1 else 1
+            }
+
+            return mantissa
+        }
+
+
+
 
         // private var autoFormatString: String = "#,###,###,##0.00"
         // ??? important for India: lakh/crore system? otherwise toFormattedString() is sufficient
@@ -856,7 +878,7 @@ public class Decimal : Number, Comparable<Decimal> {
         /***************************  Simple output core routine   ***************************/
 
         internal fun toRawString(mantissa: Long): String { // no local, decimals cut 0!
-            if (mantissa == DECIMAL_NAN_VALUE) return DECIMAL_NAN_AS_STRING
+            if (mantissa == MANTISSA_NAN_VALUE) return DECIMAL_NAN_AS_STRING
             var decimalString: String
             val prefix: String
             when {

@@ -35,9 +35,8 @@ internal fun getRoundingModeSpecificCalculation(roundingMode: Decimal.RoundingMo
 // desiredDecimals can be below 0, which means that the lowest pre-comma places will also be rounded to 0
 // but resulting decimal places must aim between 0 and 15, independent of  desired precision
 // and long rawMantissa must also be handled and be shortened if greater than MAX_DECIMAL_VALUE/MIN_DECIMAL_VALUE
-internal fun roundWithMode(rawMantissa: Long, rawDecimals: Int, rounding: Decimal.Rounding = Decimal.autoRounding): Pair<Long, Int> {
+internal fun roundWithMode(rawMantissa: Long, rawDecimals: Int, desiredDecimals: Int, roundingMode: Decimal.RoundingMode = Decimal.autoRoundingMode): Pair<Long, Int> {
     if (rawMantissa == 0L) return Pair(0,0)
-    val (desiredDecimals, roundingMode) = rounding
     var currentMantissa = rawMantissa
     var currentDecimals = rawDecimals
     // eliminate edge cases for better handling
@@ -107,7 +106,7 @@ internal fun roundWithMode(rawMantissa: Long, rawDecimals: Int, rounding: Decima
         newMantissa /= 10
         newDecimals--
     }
-    if (abs(newMantissa) > MAX_MANTISSA_VALUE) {
+    if (abs(newMantissa) > MANTISSA_MAX_VALUE) {
 //        println("Ups!")
         val errno = Decimal.generateErrorCode(Error.NUMERIC_OVERFLOW, "\"Rounded Value won't fit into Decimal\"")
         newMantissa = 0L
